@@ -24,10 +24,10 @@ gulp.task('default', ['clean'], function () {
   gulp.start('serve');
 });
 
-var webpack = require("webpack");
-var WebpackDevServer = require("webpack-dev-server");
+var webpack = require('webpack');
+var WebpackDevServer = require('webpack-dev-server');
 
-gulp.task("webpack-dev-server", function(callback) {
+gulp.task('webpack-dev-server', function(callback) {
     // Start a webpack-dev-server
     var compiler = webpack(require('./webpack.config.js'));
 
@@ -38,9 +38,9 @@ gulp.task("webpack-dev-server", function(callback) {
         '/cronService.js': {target: 'http://localhost:8080', changeOrigin: true}
       } 
     }).listen(8081, "localhost", function(err) {
-        if(err) throw new gutil.PluginError("webpack-dev-server", err);
+        if(err) throw new gutil.PluginError('webpack-dev-server', err);
         // Server listening
-        console.log("[webpack-dev-server]", "http://localhost:8080/webpack-dev-server/index.html");
+        console.log('[webpack-dev-server]', 'http://localhost:8080/webpack-dev-server/index.html');
 
         // keep the server alive or continue?
         // callback();
