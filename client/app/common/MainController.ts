@@ -5,7 +5,7 @@ angular.module('EnvironmentManager.common').controller('MainController',
   function ($rootScope, $scope, $route, $routeParams, $location, modal, cachedResources) {
 
     $scope.$route = $route; // Used by index page to determine active section
-    $scope.LoggedInUser = window.user.getName(); // For display in header
+    $scope.LoggedInUser = window['user'].getName(); // For display in header
     $scope.ParentEnvironmentsList = []; // For Environments selection
     $rootScope.WorkingEnvironment = { EnvironmentName: '' }; // For Environments section only, selected Environment from Sidebar drop-down
 
@@ -131,7 +131,7 @@ angular.module('EnvironmentManager.common').controller('MainController',
     };
 
     $scope.ShowSchemaHelp = function () {
-      var DYNAMO_SCHEMA_WIKI_URL = window.links.DYNAMO_CONFIG;
+      var DYNAMO_SCHEMA_WIKI_URL = window['links'].DYNAMO_CONFIG;
       window.open(DYNAMO_SCHEMA_WIKI_URL, '_blank');
     };
 
