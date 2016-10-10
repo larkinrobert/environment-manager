@@ -36,3 +36,7 @@ server/configuration.js
 dist/
 build/
 /Lambda/**/*.zip
+
+# Webpack
+bundle.js
+bundle.js.map

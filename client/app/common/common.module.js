@@ -5,3 +5,6 @@ angular.module('EnvironmentManager.common', [
   'ngRoute',
   'ui.bootstrap',
 ]);
+
+var context = require.context('.', true, /^((?!spec|test).)*(js|ts)$/);
+context.keys().forEach(context);

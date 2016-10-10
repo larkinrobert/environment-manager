@@ -34,3 +34,6 @@ angular.module('EnvironmentManager.environments').config(function ($routeProvide
       menusection: 'EnvServers',
     });
 });
+
+var context = require.context('.', true, /^((?!spec|test).)*(js|ts)$/);
+context.keys().forEach(context);

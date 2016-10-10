@@ -114,3 +114,7 @@ angular.module('EnvironmentManager.configuration').config(function ($routeProvid
       menusection: 'Clusters',
     });
 });
+
+var context = require.context('.', true, /^((?!spec|test).)*(js|ts)$/);
+context.keys().forEach(context);
+

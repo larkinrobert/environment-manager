@@ -33,3 +33,6 @@ angular.module('EnvironmentManager.operations').config(function ($routeProvider)
       menusection: 'AMIs',
     });
 });
+
+var context = require.context('.', true, /^((?!spec|test).)*(js|ts)$/);
+context.keys().forEach(context);

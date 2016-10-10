@@ -17,3 +17,6 @@ angular.module('EnvironmentManager.compare').config(function ($routeProvider) {
       reloadOnSearch: false,
     });
 });
+
+var context = require.context('.', true, /^((?!spec|test).)*js$/);
+context.keys().forEach(context);

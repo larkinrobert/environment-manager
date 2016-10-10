@@ -65,7 +65,7 @@ angular.module('EnvironmentManager.common').controller('MainController',
 
       // Check all mandatory fields have been provided
       for (var i = 0; i < mandatoryFields.length; i++) {
-        var field = mandatoryFields[i];
+        let field = mandatoryFields[i];
 
         if (!value || !value.hasOwnProperty(field)) {
           errors.push('Missing mandatory field: ' + pathPrefix + field);
@@ -75,7 +75,7 @@ angular.module('EnvironmentManager.common').controller('MainController',
       }
 
       // Check for any unexpected values
-      for (var field in value) {
+      for (let field in value) {
         if (mandatoryFields.indexOf(field) === -1 &&
           optionalFields.indexOf(field) === -1) {
           errors.push('Unrecognised field: ' + pathPrefix + field);
