@@ -4,8 +4,57 @@
 angular.module('EnvironmentManager.common').factory('Deployment',
   function ($q, resources, $log, awsService) {
 
-    function Deployment(data) {
-      _.assign(this, data);
+    class Deployment {
+      constructor(data) {
+        _.assign(this, data);
+      }
+
+
+
+      static getById(accountName, deploymentId) {
+        return resources.deployments.get({ account: accountName, key: deploymentId }).then(function (data) {
+          return new Deployment(data);
+        });
+      }
+
+      static convertToListView(data) {
+        function normalizeStatus(status) {
+          return status.toLowerCase().replace(' ', '-');
+        }
+
+        var nodes = data.Value.Nodes ? data.Value.Nodes.map(convertToNode) : [];
+
+        var deployment = {
+          id: data.DeploymentID,
+          account: data.AccountName,
+          data: data,
+          user: data.Value.User,
+          cluster: data.Value.OwningCluster,
+          status: data.Value.Status,
+          normalisedStatus: normalizeStatus(data.Value.Status),
+          timestamp: data.Value.EndTimestamp || data.Value.StartTimestamp,
+          log: data.Value.ExecutionLog,
+          environment: {
+            name: data.Value.EnvironmentName,
+            type: data.Value.EnvironmentType,
+          },
+          service: {
+            name: data.Value.ServiceName,
+            version: data.Value.ServiceVersion,
+          },
+          nodes: nodes,
+          error: null,
+        };
+
+        if (data.Value.ErrorReason) {
+          deployment.error = {
+            reason: data.Value.ErrorReason,
+            detail: data.Value.ErrorDetail,
+          };
+        }
+
+        return deployment;
+      }
     }
 
     _.assign(Deployment.prototype, {
@@ -35,50 +84,6 @@ angular.module('EnvironmentManager.common').factory('Deployment',
 
     });
 
-    Deployment.getById = function (accountName, deploymentId) {
-      return resources.deployments.get({ account: accountName, key: deploymentId }).then(function (data) {
-        return new Deployment(data);
-      });
-    };
-
-    Deployment.convertToListView = function (data) {
-      function normalizeStatus(status) {
-        return status.toLowerCase().replace(' ', '-');
-      }
-
-      var nodes = data.Value.Nodes ? data.Value.Nodes.map(convertToNode) : [];
-
-      var deployment = {
-        id: data.DeploymentID,
-        account: data.AccountName,
-        data: data,
-        user: data.Value.User,
-        cluster: data.Value.OwningCluster,
-        status: data.Value.Status,
-        normalisedStatus: normalizeStatus(data.Value.Status),
-        timestamp: data.Value.EndTimestamp || data.Value.StartTimestamp,
-        log: data.Value.ExecutionLog,
-        environment: {
-          name: data.Value.EnvironmentName,
-          type: data.Value.EnvironmentType,
-        },
-        service: {
-          name: data.Value.ServiceName,
-          version: data.Value.ServiceVersion,
-        },
-        nodes: nodes,
-        error: null,
-      };
-
-      if (data.Value.ErrorReason) {
-        deployment.error = {
-          reason: data.Value.ErrorReason,
-          detail: data.Value.ErrorDetail,
-        };
-      }
-
-      return deployment;
-    };
     
     function convertToNode(node) {
       return {
