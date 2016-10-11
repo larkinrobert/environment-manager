@@ -8,8 +8,6 @@ angular.module('EnvironmentManager.compare').component('serviceCell', {
   },
   replace: true,
   controller: function ($sce, $templateRequest, $compile, comparisons, $log) {
-    var $ctrl = this;
-
     if (!this.data) {
       $log.warn('No data passed to serviceCell!')
       return;

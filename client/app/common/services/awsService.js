@@ -200,12 +200,6 @@ angular.module('EnvironmentManager.common').factory('awsService',
         return /^[a-zA-Z0-9.-]+-[0-9]+\.[0-9]+\.[0-9]+$/.test(amiName);
       }
 
-      function IsStable(ami) {
-        // Stable tag (windows images) or Description = "Stable" for Linux
-        return angular.isDefined(ami.Stable) && ami.Stable != '' ||
-          angular.isDefined(ami.Description) && angular.lowercase(ami.Description) == 'stable';
-      }
-
       function AmiVersionCompare(amiA, amiB) {
         return SemanticVersionCompare(amiA.AmiVersion, amiB.AmiVersion) * -1;
       }

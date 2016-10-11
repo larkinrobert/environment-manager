@@ -9,8 +9,6 @@ angular.module('EnvironmentManager.common').factory('Deployment',
         _.assign(this, data);
       }
 
-
-
       static getById(accountName, deploymentId) {
         return resources.deployments.get({ account: accountName, key: deploymentId }).then(function (data) {
           return new Deployment(data);
