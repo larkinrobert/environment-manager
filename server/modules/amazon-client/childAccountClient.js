@@ -12,14 +12,23 @@ module.exports = {
   createASGClient: createClientWithRole(AWS.AutoScaling),
   createEC2Client: createClientWithRole(AWS.EC2),
   createIAMClient: createClientWithRole(AWS.IAM),
+  createLowLevelDynamoClient: createClientWithRole(AWS.DynamoDB),
   createS3Client: createClientWithRole(AWS.S3),
   createSNSClient: createClientWithRole(AWS.SNS),
   assumeRole
 };
 
+function getAccount(accountName) {
+  if (accountName === undefined) {
+    return awsAccounts.getMasterAccount();
+  } else {
+    return awsAccounts.getByName(accountName);
+  }
+}
+
 function createClientWithRole(ClientType) {
   return co.wrap(function* clientFactory(accountName) {
-    let account = yield awsAccounts.getByName(accountName);
+    let account = yield getAccount(accountName);
     let options = common.getOptions();
     if (account.Impersonate && account.RoleArn !== undefined) {
       options.credentials = yield getCredentials(account.RoleArn);
