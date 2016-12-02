@@ -18,7 +18,7 @@ function project(upstream) {
   return {
     AccountName: upstream.account,
     Value: JSON.parse(upstream.value.value),
-    Version: upstream.value.version,
+    Version: upstream.value.Audit.Version,
     key: upstream.value.key,
   };
 }

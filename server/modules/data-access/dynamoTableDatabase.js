@@ -12,7 +12,6 @@ let expr = require('modules/awsDynamo/dynamodbExpression');
 let fp = require('lodash/fp');
 let schema = require('modules/schema/schema');
 
-let omitAuditMetadata = dynamoAudit.omitAuditMetadata;
 let versionMatches = dynamoOptimisticConcurrency.versionMatches;
 
 function dynamodb(accountNumber) {
@@ -67,8 +66,7 @@ function dynamoTableDatabase(options) {
   function scan(accountNumber) {
     let params = forThisTable();
     return dynamodb(accountNumber)
-        .then(dynamo => dynamoPager.promiseAllItems(dynamo.scan(params)))
-        .then(items => items.map(omitAuditMetadata));
+        .then(dynamo => dynamoPager.promiseAllItems(dynamo.scan(params)));
   }
 
   function get(accountNumber, key) {
@@ -77,8 +75,7 @@ function dynamoTableDatabase(options) {
     });
     return dynamodb(accountNumber)
         .then(dynamo => dynamo.get(params).promise())
-        .then(result => result.Item)
-        .then(omitAuditMetadata);
+        .then(result => result.Item);
   }
 
   function create(accountNumber, entity) {
