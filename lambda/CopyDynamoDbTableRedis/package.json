@@ -1,0 +1,31 @@
+{
+  "name": "copy-dynamodb-table-redis",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ioredis": "^2.4.2",
+    "lodash": "^4.17.2"
+  },
+  "scripts": {
+    "lint": "eslint"
+  },
+  "eslintConfig": {
+    "env": {
+      "es6": true,
+      "node": true
+    },
+    "extends": "eslint:recommended",
+    "parserOptions": {
+      "ecmaVersion": 6
+    },
+    "rules": {
+      "no-console": 0
+    }
+  },
+  "devDependencies": {
+    "eslint": "^3.4.0"
+  }
+}
