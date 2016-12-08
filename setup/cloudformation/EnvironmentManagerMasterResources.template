@@ -81,6 +81,10 @@
                 "false",
                 "true"
             ]
+        },
+        "pRedisAccessSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup::Id",
+            "Description": "Redis Access Security Group"
         }
     },
     "Conditions": {
@@ -281,6 +285,9 @@
                 "SecurityGroups": [
                     {
                         "Ref": "sgInfraEnvironmentManager"
+                    },
+                    {
+                        "Ref": "pRedisAccessSecurityGroup"
                     }
                 ],
                 "UserData": {
