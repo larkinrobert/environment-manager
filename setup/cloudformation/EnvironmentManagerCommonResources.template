@@ -517,7 +517,10 @@
                     ]
                 },
                 "ManagedPolicyArns": [
-                    "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
+                    "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess",
+                    {
+                        "Ref": "policyReadEnvironmentManagerTables"
+                    }
                 ],
                 "Policies": [
                     {
@@ -525,71 +528,6 @@
                         "PolicyDocument": {
                             "Version": "2012-10-17",
                             "Statement": [
-                                {
-                                    "Effect": "Allow",
-                                    "Action": [
-                                        "dynamodb:GetRecords",
-                                        "dynamodb:GetShardIterator",
-                                        "dynamodb:DescribeStream",
-                                        "dynamodb:ListStreams"
-                                    ],
-                                    "Resource": [
-                                        {
-                                            "Fn::GetAtt": [
-                                                "ConfigLBSettings",
-                                                "StreamArn"
-                                            ]
-                                        },
-                                        {
-                                            "Fn::GetAtt": [
-                                                "ConfigLBUpstream",
-                                                "StreamArn"
-                                            ]
-                                        },
-                                        {
-                                            "Fn::GetAtt": [
-                                                "ConfigServices",
-                                                "StreamArn"
-                                            ]
-                                        },
-                                        {
-                                            "Fn::GetAtt": [
-                                                "InfraConfigClusters",
-                                                "StreamArn"
-                                            ]
-                                        },
-                                        {
-                                            "Fn::GetAtt": [
-                                                "ConfigEnvironments",
-                                                "StreamArn"
-                                            ]
-                                        },
-                                        {
-                                            "Fn::GetAtt": [
-                                                "InfraConfigPermissions",
-                                                "StreamArn"
-                                            ]
-                                        },
-                                        {
-                                            "Fn::GetAtt": [
-                                                "ConfigEnvironmentTypes",
-                                                "StreamArn"
-                                            ]
-                                        },
-                                        {
-                                            "Fn::GetAtt": [
-                                                "ConfigDeploymentMaps",
-                                                "StreamArn"
-                                            ]
-                                        },
-                                        {
-                                            "Fn::GetAtt": [
-                                                "InfraConfigAccounts",
-                                                "StreamArn"
-                                            ]
-                                        }
-                                    ]
-                                },
                                 {
                                     "Action": "sts:AssumeRole",
                                     "Effect": "Allow",
@@ -787,64 +725,9 @@
                     ]
                 },
                 "ManagedPolicyArns": [
-                    "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
-                ],
-                "Policies": [
+                    "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess",
                     {
-                        "PolicyName": "roleInfraDynamoStreamReplicaWriterPolicy",
-                        "PolicyDocument": {
-                            "Version": "2012-10-17",
-                            "Statement": [
-                                {
-                                    "Effect": "Allow",
-                                    "Action": [
-                                        "dynamodb:DeleteItem",
-                                        "dynamodb:PutItem"
-                                    ],
-                                    "Resource": [
-                                        {
-                                            "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ConfigEnvironments}"
-                                        },
-                                        {
-                                            "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ConfigServices}"
-                                        },
-                                        {
-                                            "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ConfigDeploymentMaps}"
-                                        },
-                                        {
-                                            "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ConfigLBSettings}"
-                                        },
-                                        {
-                                            "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ConfigLBUpstream}"
-                                        },
-                                        {
-                                            "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ConfigDeploymentExecutionStatus}"
-                                        },
-                                        {
-                                            "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ConfigEnvironmentTypes}"
-                                        },
-                                        {
-                                            "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${InfraAsgIPs}"
-                                        },
-                                        {
-                                            "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${InfraConfigAccounts}"
-                                        },
-                                        {
-                                            "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${InfraConfigClusters}"
-                                        },
-                                        {
-                                            "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${InfraConfigPermissions}"
-                                        },
-                                        {
-                                            "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${InfraEnvManagerSessions}"
-                                        },
-                                        {
-                                            "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${InfraOpsEnvironment}"
-                                        }
-                                    ]
-                                }
-                            ]
-                        }
+                        "Ref": "policyWriteEnvironmentManagerTables"
                     }
                 ],
                 "RoleName": "roleInfraDynamoStreamReplicaWriter"
@@ -907,7 +790,10 @@
                     ]
                 },
                 "ManagedPolicyArns": [
-                    "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
+                    "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess",
+                    {
+                        "Ref": "policyReadEnvironmentManagerTables"
+                    }
                 ],
                 "Policies": [
                     {
@@ -921,59 +807,6 @@
                                     "Resource": [
                                         /* Allow the master account to copy data to each child account */
                                         // "arn:aws:iam::<CHILD ACCOUNT ID>:role/roleInfraDynamoStreamReplicaWriter"
-                                    ]
-                                },
-                                {
-                                    "Effect": "Allow",
-                                    "Action": [
-                                        "dynamodb:GetRecords",
-                                        "dynamodb:GetShardIterator",
-                                        "dynamodb:DescribeStream",
-                                        "dynamodb:ListStreams"
-                                    ],
-                                    "Resource": [
-                                        {
-                                            "Fn::GetAtt": [
-                                                "ConfigServices",
-                                                "StreamArn"
-                                            ]
-                                        },
-                                        {
-                                            "Fn::GetAtt": [
-                                                "InfraConfigClusters",
-                                                "StreamArn"
-                                            ]
-                                        },
-                                        {
-                                            "Fn::GetAtt": [
-                                                "ConfigEnvironments",
-                                                "StreamArn"
-                                            ]
-                                        },
-                                        {
-                                            "Fn::GetAtt": [
-                                                "ConfigEnvironmentTypes",
-                                                "StreamArn"
-                                            ]
-                                        },
-                                        {
-                                            "Fn::GetAtt": [
-                                                "ConfigDeploymentMaps",
-                                                "StreamArn"
-                                            ]
-                                        },
-                                        {
-                                            "Fn::GetAtt": [
-                                                "InfraConfigAccounts",
-                                                "StreamArn"
-                                            ]
-                                        },
-                                        {
-                                            "Fn::GetAtt": [
-                                                "InfraOpsEnvironment",
-                                                "StreamArn"
-                                            ]
-                                        }
                                     ]
                                 }
                             ]
@@ -1342,7 +1175,220 @@
                 ],
                 "RoleName": "roleInfraAsgScale"
             }
+        },
+        "policyReadEnvironmentManagerTables": {
+            "Type": "AWS::IAM::ManagedPolicy",
+            "Properties": {
+                "Description": "Allows read access to Environment Manager DynamoDB Tables and Streams",
+                "Path": "/EnvironmentManager/",
+                "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "dynamodb:GetRecords",
+                                "dynamodb:GetShardIterator",
+                                "dynamodb:DescribeStream",
+                                "dynamodb:ListStreams"
+                            ],
+                            "Resource": [
+                                {
+                                    "Fn::GetAtt": [
+                                        "ConfigLBSettings",
+                                        "StreamArn"
+                                    ]
+                                },
+                                {
+                                    "Fn::GetAtt": [
+                                        "ConfigLBUpstream",
+                                        "StreamArn"
+                                    ]
+                                },
+                                {
+                                    "Fn::GetAtt": [
+                                        "ConfigServices",
+                                        "StreamArn"
+                                    ]
+                                },
+                                {
+                                    "Fn::GetAtt": [
+                                        "InfraConfigClusters",
+                                        "StreamArn"
+                                    ]
+                                },
+                                {
+                                    "Fn::GetAtt": [
+                                        "ConfigEnvironments",
+                                        "StreamArn"
+                                    ]
+                                },
+                                {
+                                    "Fn::GetAtt": [
+                                        "InfraConfigPermissions",
+                                        "StreamArn"
+                                    ]
+                                },
+                                {
+                                    "Fn::GetAtt": [
+                                        "ConfigEnvironmentTypes",
+                                        "StreamArn"
+                                    ]
+                                },
+                                {
+                                    "Fn::GetAtt": [
+                                        "ConfigDeploymentMaps",
+                                        "StreamArn"
+                                    ]
+                                },
+                                {
+                                    "Fn::GetAtt": [
+                                        "InfraConfigAccounts",
+                                        "StreamArn"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "dynamodb:BatchGetItem",
+                                "dynamodb:Describe*",
+                                "dynamodb:Get*",
+                                "dynamodb:List*",
+                                "dynamodb:Query",
+                                "dynamodb:Scan"
+                            ],
+                            "Resource": [
+                                {
+                                    "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ConfigEnvironments}"
+                                },
+                                {
+                                    "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ConfigServices}"
+                                },
+                                {
+                                    "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ConfigDeploymentMaps}"
+                                },
+                                {
+                                    "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ConfigLBSettings}"
+                                },
+                                {
+                                    "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ConfigLBUpstream}"
+                                },
+                                {
+                                    "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ConfigDeploymentExecutionStatus}"
+                                },
+                                {
+                                    "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ConfigEnvironmentTypes}"
+                                },
+                                {
+                                    "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${InfraAsgIPs}"
+                                },
+                                {
+                                    "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${InfraConfigAccounts}"
+                                },
+                                {
+                                    "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${InfraConfigClusters}"
+                                },
+                                {
+                                    "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${InfraConfigPermissions}"
+                                },
+                                {
+                                    "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${InfraEnvManagerSessions}"
+                                },
+                                {
+                                    "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${InfraOpsEnvironment}"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "policyWriteEnvironmentManagerTables": {
+            "Type": "AWS::IAM::ManagedPolicy",
+            "Properties": {
+                "Description": "Allows read access to Environment Manager DynamoDB Tables and Streams",
+                "Path": "/EnvironmentManager/",
+                "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "dynamodb:BatchWriteItem",
+                                "dynamodb:DeleteItem",
+                                "dynamodb:PutItem",
+                                "dynamodb:UpdateItem"
+                            ],
+                            "Resource": [
+                                {
+                                    "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ConfigEnvironments}"
+                                },
+                                {
+                                    "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ConfigServices}"
+                                },
+                                {
+                                    "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ConfigDeploymentMaps}"
+                                },
+                                {
+                                    "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ConfigLBSettings}"
+                                },
+                                {
+                                    "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ConfigLBUpstream}"
+                                },
+                                {
+                                    "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ConfigDeploymentExecutionStatus}"
+                                },
+                                {
+                                    "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ConfigEnvironmentTypes}"
+                                },
+                                {
+                                    "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${InfraAsgIPs}"
+                                },
+                                {
+                                    "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${InfraConfigAccounts}"
+                                },
+                                {
+                                    "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${InfraConfigClusters}"
+                                },
+                                {
+                                    "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${InfraConfigPermissions}"
+                                },
+                                {
+                                    "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${InfraEnvManagerSessions}"
+                                },
+                                {
+                                    "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${InfraOpsEnvironment}"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
         }
     },
-    "Outputs": {}
+    "Outputs": {
+        "ConfigLBUpstreamTable": {
+            "Description": "Load balancer upstream configuration table",
+            "Value": {
+                "Ref": "ConfigLBUpstream"
+            }
+        },
+        "ConfigLBUpstreamStream": {
+            "Description": "Load balancer upstream configuration table",
+            "Value": {
+                "Fn::GetAtt": [
+                    "ConfigLBUpstream",
+                    "StreamArn"
+                ]
+            }
+        },
+        "readEnvironmentManagerTablesPolicyARN": {
+            "Description": "Policy allows read Environment Manager tables and streams",
+            "Value": {
+                "Ref": "policyReadEnvironmentManagerTables"
+            }
+        }
+    }
 }
