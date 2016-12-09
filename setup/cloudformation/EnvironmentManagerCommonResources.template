@@ -1384,7 +1384,7 @@
                 ]
             }
         },
-        "readEnvironmentManagerTablesPolicyARN": {
+        "readEnvironmentManagerTablesPolicyArn": {
             "Description": "Policy allows read Environment Manager tables and streams",
             "Value": {
                 "Ref": "policyReadEnvironmentManagerTables"

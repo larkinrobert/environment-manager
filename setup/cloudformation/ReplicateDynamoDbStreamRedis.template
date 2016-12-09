@@ -23,17 +23,13 @@
             "Type": "List<AWS::EC2::SecurityGroup::Id>",
             "Description": "Redis Access Security Group"
         },
-        "pRedisAccessSubnets": {
+        "pRedisSubnets": {
             "Type": "List<AWS::EC2::Subnet::Id>",
             "Description": "Redis Access Subnets"
         },
-        "pDynamoDBAccessPolicyArn": {
+        "pLambdaFunctionExecutionRoleArn": {
             "Type": "String",
-            "Description": "ARN of IAM policy granting access to source DynamoDB Streams"
-        },
-        "pSourceDynamoDBStreamArn": {
-            "Type": "String",
-            "Description": "ARN of the source DynamoDB Stream"
+            "Description": "ARN of IAM role as which the Lambda functions will execute"
         }
     },
     "Resources": {
@@ -60,10 +56,7 @@
                 "Handler": "index.handler",
                 "MemorySize": 128,
                 "Role": {
-                    "Fn::GetAtt": [
-                        "roleInfraEnvironmentManagerCache",
-                        "Arn"
-                    ]
+                    "Ref": "pLambdaFunctionExecutionRoleArn"
                 },
                 "Runtime": "nodejs4.3",
                 "Timeout": 30,
@@ -72,7 +65,7 @@
                         "Ref": "pRedisAccessSecurityGroups"
                     },
                     "SubnetIds": {
-                        "Ref": "pRedisAccessSubnets"
+                        "Ref": "pRedisSubnets"
                     }
                 }
             }
@@ -100,10 +93,7 @@
                 "Handler": "index.handler",
                 "MemorySize": 128,
                 "Role": {
-                    "Fn::GetAtt": [
-                        "roleInfraEnvironmentManagerCache",
-                        "Arn"
-                    ]
+                    "Ref": "pLambdaFunctionExecutionRoleArn"
                 },
                 "Runtime": "nodejs4.3",
                 "Timeout": 10,
@@ -112,49 +102,30 @@
                         "Ref": "pRedisAccessSecurityGroups"
                     },
                     "SubnetIds": {
-                        "Ref": "pRedisAccessSubnets"
+                        "Ref": "pRedisSubnets"
                     }
                 }
             }
-        },
-        "triggerReplicateDynamoDbStreamRedis": {
-            "Type": "AWS::Lambda::EventSourceMapping",
-            "Properties": {
-                "BatchSize": 10,
-                "Enabled": true,
-                "EventSourceArn": {
-                    "Ref": "pSourceDynamoDBStreamArn"
-                },
-                "FunctionName": {
-                    "Ref": "lambdaReplicateDynamoDbStreamRedis"
-                },
-                "StartingPosition": "LATEST"
+        }
+    },
+    "Outputs": {
+        "CopyFunctionArn": {
+            "Description": "Copy Function ARN",
+            "Value": {
+                "Fn::GetAtt": [
+                    "lambdaCopyDynamoDbTableRedis",
+                    "Arn"
+                ]
             }
         },
-        "roleInfraEnvironmentManagerCache": {
-            "Type": "AWS::IAM::Role",
-            "Properties": {
-                "AssumeRolePolicyDocument": {
-                    "Version": "2012-10-17",
-                    "Statement": [
-                        {
-                            "Effect": "Allow",
-                            "Principal": {
-                                "Service": "lambda.amazonaws.com"
-                            },
-                            "Action": "sts:AssumeRole"
-                        }
-                    ]
-                },
-                "ManagedPolicyArns": [
-                    "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-                    "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
-                    {
-                        "Ref": "pDynamoDBAccessPolicyArn"
-                    }
+        "ReplicateFunctionArn": {
+            "Description": "Replicate Function ARN",
+            "Value": {
+                "Fn::GetAtt": [
+                    "lambdaReplicateDynamoDbStreamRedis",
+                    "Arn"
                 ]
             }
         }
-    },
-    "Outputs": {}
+    }
 }
