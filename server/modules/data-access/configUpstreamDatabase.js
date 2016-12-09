@@ -7,7 +7,7 @@ let crossAccount = require('modules/data-access/crossAccount');
 let dynamoTableDatabase = require('modules/data-access/dynamoTableDatabase');
 let Environment = require('models/Environment');
 let fp = require('lodash/fp');
-let s3ObjectDatabase = require('modules/data-access/s3ObjectDatabase');
+let redisDatabase = require('modules/data-access/redisDatabase');
 
 const S3_OBJECT_URL_LBUPSTREAM = config.get('S3_OBJECT_URL_LBUPSTREAM');
 
@@ -17,8 +17,8 @@ let db = dynamoTableDatabase({
   itemSchema: 'ConfigLbUpstream',
 });
 
-let s3db = s3ObjectDatabase({
-  objectUrl: S3_OBJECT_URL_LBUPSTREAM,
+let cache = redisDatabase({
+  logicalTableName: 'ConfigLBUpstream',
 });
 
 let eachAccount = crossAccount.eachAccount;
@@ -33,7 +33,7 @@ function accountFor(upstream) {
 }
 
 module.exports = {
-  scan: s3db.scan,
+  scan: () => eachAccount(account => cache.getAll(account)).then(ignoreErrors),
   get: key => eachAccount(account => db.get(account, key)).then(fp.flow(ignoreErrors, fp.find(x => x))),
   create: upstream => accountFor(upstream).then(account => db.create(account, upstream)),
   put: upstream => accountFor(upstream).then(account => db.put(account, upstream)),
