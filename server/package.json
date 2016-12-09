@@ -81,6 +81,7 @@
     "eslint-config-airbnb-base": "^10.0.1",
     "eslint-plugin-import": "^2.2.0",
     "gulp": "^3.9.1",
+    "ioredis": "^2.4.2",
     "mocha": "^3.2.0",
     "mocha-teamcity-reporter": "^1.1.1",
     "proxyquire": "^1.7.10",

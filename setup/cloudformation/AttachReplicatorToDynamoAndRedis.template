@@ -1,0 +1,202 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Environment Manager Resources",
+    "Parameters": {
+        "pLambdaFunctionBucket": {
+            "Type": "String",
+            "Description": "S3 Bucket containing code for Lambda functions",
+            "Default": "lambda.trainline.com",
+            "MinLength": "0"
+        },
+        "pVpc": {
+            "Type": "AWS::EC2::VPC::Id",
+            "Description": "VPC ID, syntax vpc-xxxxxxxx"
+        },
+        "pSubnets": {
+            "Type": "List<AWS::EC2::Subnet::Id>",
+            "Description": "Environment Manager Subnets"
+        },
+        "pRedisAddress": {
+            "Type": "String",
+            "Description": "Redis Address"
+        },
+        "pRedisPort": {
+            "Type": "String",
+            "Description": "Redis Port"
+        },
+        "pRedisSecurityGroups": {
+            "Type": "List<AWS::EC2::SecurityGroup::Id>",
+            "Description": "Security Groups for Redis access"
+        },
+        "pTableConfigLBUpstreamTableArn": {
+            "Type": "String",
+            "Description": "ConfigLBUpstream DynamoDB table ARN"
+        },
+        "pTableConfigLBUpstreamStreamArn": {
+            "Type": "String",
+            "Description": "ConfigLBUpstream DynamoDB stream ARN"
+        }
+    },
+    "Conditions": {},
+    "Resources": {
+        "policyReadEnvironmentManagerTables": {
+            "Type": "AWS::IAM::ManagedPolicy",
+            "Properties": {
+                "Description": "Allows read access to Environment Manager DynamoDB Tables and Streams",
+                "Path": "/EnvironmentManager/",
+                "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "dynamodb:GetRecords",
+                                "dynamodb:GetShardIterator",
+                                "dynamodb:DescribeStream",
+                                "dynamodb:ListStreams"
+                            ],
+                            "Resource": [
+                                {
+                                    "Ref": "pTableConfigLBUpstreamStreamArn"
+                                }
+                            ]
+                        },
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "dynamodb:BatchGetItem",
+                                "dynamodb:Describe*",
+                                "dynamodb:Get*",
+                                "dynamodb:List*",
+                                "dynamodb:Query",
+                                "dynamodb:Scan"
+                            ],
+                            "Resource": [
+                                {
+                                    "Ref": "pTableConfigLBUpstreamTableArn"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "policyWriteEnvironmentManagerTables": {
+            "Type": "AWS::IAM::ManagedPolicy",
+            "Properties": {
+                "Description": "Allows read access to Environment Manager DynamoDB Tables and Streams",
+                "Path": "/EnvironmentManager/",
+                "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": [
+                                "dynamodb:BatchWriteItem",
+                                "dynamodb:DeleteItem",
+                                "dynamodb:PutItem",
+                                "dynamodb:UpdateItem"
+                            ],
+                            "Resource": [
+                                {
+                                    "Ref": "pTableConfigLBUpstreamTableArn"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "roleInfraEnvironmentManagerCache": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "lambda.amazonaws.com"
+                            },
+                            "Action": "sts:AssumeRole"
+                        }
+                    ]
+                },
+                "ManagedPolicyArns": [
+                    "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+                    "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
+                    {
+                        "Ref": "policyReadEnvironmentManagerTables"
+                    }
+                ]
+            }
+        },
+        "stackReplicateDynamoDbStreamRedis": {
+            "Type": "AWS::CloudFormation::Stack",
+            "Properties": {
+                "Parameters": {
+                    "pLambdaFunctionBucket": {
+                        "Ref": "pLambdaFunctionBucket"
+                    },
+                    "pRedisAddress": {
+                        "Ref": "pRedisAddress"
+                    },
+                    "pRedisPort": {
+                        "Ref": "pRedisPort"
+                    },
+                    "pRedisAccessSecurityGroups": {
+                        "Fn::Join": [
+                            ",",
+                            {
+                                "Ref": "pRedisSecurityGroups"
+                            }
+                        ]
+                    },
+                    "pRedisSubnets": {
+                        "Fn::Join": [
+                            ",",
+                            {
+                                "Ref": "pSubnets"
+                            }
+                        ]
+                    },
+                    "pLambdaFunctionExecutionRoleArn": {
+                        "Fn::GetAtt": [
+                            "roleInfraEnvironmentManagerCache",
+                            "Arn"
+                        ]
+                    }
+                },
+                "TemplateURL": {
+                    "Fn::Sub": "https://s3-${AWS::Region}.amazonaws.com/${pLambdaFunctionBucket}/EnvironmentManager/ReplicateDynamoDbStreamRedis.template"
+                },
+                "TimeoutInMinutes": 3
+            }
+        },
+        "triggerReplicateDynamoDbStreamRedisTableConfigLBUpstream": {
+            "Type": "AWS::Lambda::EventSourceMapping",
+            "Properties": {
+                "BatchSize": 10,
+                "Enabled": true,
+                "EventSourceArn": {
+                    "Ref": "pTableConfigLBUpstreamStreamArn"
+                },
+                "FunctionName": {
+                    "Fn::GetAtt": [
+                        "stackReplicateDynamoDbStreamRedis",
+                        "Outputs.ReplicateFunctionArn"
+                    ]
+                },
+                "StartingPosition": "LATEST"
+            }
+        }
+    },
+    "Outputs": {
+        "readEnvironmentManagerTablesPolicyArn": {
+            "Description": "Policy allows read Environment Manager tables and streams",
+            "Value": {
+                "Ref": "policyReadEnvironmentManagerTables"
+            }
+        }
+    }
+}
