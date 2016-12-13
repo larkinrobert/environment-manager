@@ -28,6 +28,7 @@ let cache = (() => {
 })();
 
 let eachAccount = crossAccount.eachAccount;
+let flatten = crossAccount.flatten;
 let ignoreErrors = crossAccount.ignoreErrors;
 
 function accountFor(upstream) {
@@ -54,7 +55,7 @@ function scan(account) {
 }
 
 module.exports = {
-  scan: () => eachAccount(scan).then(ignoreErrors),
+  scan: () => eachAccount(scan).then(fp.flow(ignoreErrors, flatten)),
   get: key => eachAccount(account => db.get(account, key)).then(fp.flow(ignoreErrors, fp.find(x => x))),
   create: upstream => accountFor(upstream).then(account => db.create(account, upstream)),
   put: upstream => accountFor(upstream).then(account => db.put(account, upstream)),

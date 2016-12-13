@@ -36,6 +36,10 @@ function usingRedisConnection(connectionFactory, operation) {
 }
 
 function redisDatabase(options) {
+  if (!(EM_REDIS_ADDRESS && EM_REDIS_PORT)) {
+    return undefined;
+  }
+
   if (!options.logicalTableName) {
     throw new Error('The "logicalTableName" property of the "options" argument is required');
   }
@@ -43,10 +47,12 @@ function redisDatabase(options) {
   let connectDefault = connect.bind(null, { address: EM_REDIS_ADDRESS, port: EM_REDIS_PORT });
 
   function getAll(accountNumber) {
-    return dynamoTableDescription(TABLE_NAME, accountNumber).then((tableDescription) => {
-      let tableArn = tableDescription.Table.TableArn;
-      return usingRedisConnection(connectDefault, redis => redis.hgetall(tableArn));
-    });
+    return dynamoTableDescription(TABLE_NAME, accountNumber)
+      .then((tableDescription) => {
+        let tableArn = tableDescription.Table.TableArn;
+        return usingRedisConnection(connectDefault, redis => redis.hgetall(tableArn));
+      })
+      .then(value => ({ account: accountNumber, value }));
   }
 
   return {
