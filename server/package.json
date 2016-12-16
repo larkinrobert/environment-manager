@@ -71,6 +71,7 @@
     "through2": "^2.0.3",
     "through2-map": "^3.0.0",
     "unzip2": "^0.2.5",
+    "uuid": "^3.0.1",
     "valid-url": "^1.0.9",
     "winston": "^2.3.0",
     "xmldom": "^0.1.27",
