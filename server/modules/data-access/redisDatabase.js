@@ -52,7 +52,15 @@ function redisDatabase(options) {
         let tableArn = tableDescription.Table.TableArn;
         return usingRedisConnection(connectDefault, redis => redis.hgetall(tableArn));
       })
-      .then(value => ({ account: accountNumber, value }));
+      .then((values) => {
+        if (typeof values === 'string') {
+          return JSON.parse(values);
+        } else if (Array.isArray(values)) {
+          return values.map(value => JSON.parse(value));
+        } else {
+          return Object.keys(values).map(key => JSON.parse(values[key]));
+        }
+      });
   }
 
   return {
