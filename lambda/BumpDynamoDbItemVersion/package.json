@@ -1,5 +1,5 @@
 {
-  "name": "copy-dynamodb-table-redis",
+  "name": "bump-dynamodb-item-version",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
