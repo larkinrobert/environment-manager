@@ -127,6 +127,9 @@
                     "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
                     {
                         "Ref": "policyReadEnvironmentManagerTables"
+                    },
+                    {
+                        "Ref": "policyWriteEnvironmentManagerTables"
                     }
                 ]
             }

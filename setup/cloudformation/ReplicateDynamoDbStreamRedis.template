@@ -33,16 +33,16 @@
         }
     },
     "Resources": {
-        "lambdaCopyDynamoDbTableRedis": {
+        "lambdaDynamoDbTableBumpItemVersion": {
             "Type": "AWS::Lambda::Function",
             "Properties": {
                 "Code": {
                     "S3Bucket": {
                         "Ref": "pLambdaFunctionBucket"
                     },
-                    "S3Key": "EnvironmentManager/CopyDynamoDbTableRedis.zip"
+                    "S3Key": "EnvironmentManager/DynamoDbTableBumpItemVersion.zip"
                 },
-                "Description": "This function copies the contents of a DynamoDB table to a Redis hash.",
+                "Description": "This function increments the version of each item in a DynamoDB table.",
                 "Environment": {
                     "Variables": {
                         "REDIS_ADDRESS": {
@@ -59,15 +59,7 @@
                     "Ref": "pLambdaFunctionExecutionRoleArn"
                 },
                 "Runtime": "nodejs4.3",
-                "Timeout": 30,
-                "VpcConfig": {
-                    "SecurityGroupIds": {
-                        "Ref": "pRedisAccessSecurityGroups"
-                    },
-                    "SubnetIds": {
-                        "Ref": "pRedisSubnets"
-                    }
-                }
+                "Timeout": 30
             }
         },
         "lambdaReplicateDynamoDbStreamRedis": {
@@ -109,11 +101,11 @@
         }
     },
     "Outputs": {
-        "CopyFunctionArn": {
-            "Description": "Copy Function ARN",
+        "BumpItemVersionFunctionArn": {
+            "Description": "Bump Item Version Function ARN",
             "Value": {
                 "Fn::GetAtt": [
-                    "lambdaCopyDynamoDbTableRedis",
+                    "DynamoDbTableBumpItemVersion",
                     "Arn"
                 ]
             }
