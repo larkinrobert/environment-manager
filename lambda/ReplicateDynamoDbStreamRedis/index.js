@@ -1,8 +1,12 @@
 'use strict';
 
+let AWS = require('aws-sdk');
+let emCrypto = require('./em-crypto');
 let Redis = require('ioredis');
 let unmarshalItem = require('dynamodb-marshaler').unmarshalItem;
 
+const CRYPTO_KEY_S3_BUCKET = process.env.CRYPTO_KEY_S3_BUCKET;
+const CRYPTO_KEY_S3_KEY = process.env.CRYPTO_KEY_S3_KEY;
 const REDIS_ADDRESS = process.env.REDIS_ADDRESS;
 const REDIS_PORT = process.env.REDIS_PORT;
 
@@ -42,28 +46,39 @@ function usingRedisConnection(connectionFactory, operation) {
 }
 
 function processRecords(redis, records) {
-    function processRecord(record) {
-        let tableARN = getTableARN(record.eventSourceARN);
-        let key = JSON.stringify(unmarshalItem(record.dynamodb.Keys));
-        let val = () => JSON.stringify(unmarshalItem(record.dynamodb.NewImage));
-        console.log(record.eventName);
-        if (record.eventName === 'INSERT') {
-            return ['hset', tableARN, key, val()];
-        } else if (record.eventName === 'MODIFY') {
-            return ['hset', tableARN, key, val()];
-        } else if (record.eventName === 'REMOVE') {
-            return ['hdel', tableARN, key];
+    let s3 = new AWS.S3();
+    return s3.getObject({
+        Bucket: CRYPTO_KEY_S3_BUCKET,
+        Key: CRYPTO_KEY_S3_KEY,
+    }).promise.then(s3Obj => {
+        let cryptoKey = s3Obj.Body;
+        function processRecord(record) {
+            let tableARN = getTableARN(record.eventSourceARN);
+            let key = JSON.stringify(unmarshalItem(record.dynamodb.Keys));
+            let val = () => emCrypto.encrypt(cryptoKey, JSON.stringify(unmarshalItem(record.dynamodb.NewImage)));
+            console.log(record.eventName);
+            if (record.eventName === 'INSERT') {
+                return ['hset', tableARN, key, val()];
+            } else if (record.eventName === 'MODIFY') {
+                return ['hset', tableARN, key, val()];
+            } else if (record.eventName === 'REMOVE') {
+                return ['hdel', tableARN, key];
+            }
         }
-    }
-    let instructions = records.map(processRecord);
-    console.log(instructions);
-    let pipeline = redis.pipeline(instructions);
-    return pipeline.exec();
+        let instructions = records.map(processRecord);
+        console.log(instructions);
+        let pipeline = redis.pipeline(instructions);
+        return pipeline.exec();
+    });
 }
 
-exports.handler = (event, context, callback) => {
+function handler(event, context, callback) {
     let connect = () => connectRedis({ address: REDIS_ADDRESS, port: REDIS_PORT });
     usingRedisConnection(connect, redis => processRecords(redis, event.Records))
         .then(x => callback(null, x))
         .catch(e => callback(e));
+};
+
+module.exports = {
+    handler,
 };

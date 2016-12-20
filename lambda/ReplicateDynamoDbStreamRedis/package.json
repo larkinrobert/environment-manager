@@ -10,7 +10,8 @@
     "ioredis": "^2.4.2"
   },
   "scripts": {
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "mocha ./*.spec.js"
   },
   "eslintConfig": {
     "env": {
@@ -26,6 +27,8 @@
     }
   },
   "devDependencies": {
-    "eslint": "^3.4.0"
+    "eslint": "^3.4.0",
+    "mocha": "^3.2.0",
+    "should": "^11.1.2"
   }
 }
