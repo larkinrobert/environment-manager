@@ -35,6 +35,14 @@
         "pTableConfigLBUpstreamStreamArn": {
             "Type": "String",
             "Description": "ConfigLBUpstream DynamoDB stream ARN"
+        },
+        "pRedisCryptoKeyS3Bucket": {
+            "Type": "String",
+            "Description": "S3 Bucket containing Redis encryption key"
+        },
+        "pRedisCryptoKeyS3Key": {
+            "Type": "String",
+            "Description": "S3 Key containing Redis encryption key"
         }
     },
     "Conditions": {},
@@ -107,6 +115,27 @@
                 }
             }
         },
+        "policyReadRedisCryptoKey": {
+            "Type": "AWS::IAM::ManagedPolicy",
+            "Properties": {
+                "Description": "Allows read access to Environment Manager's Redis enrcyption key",
+                "Path": "/EnvironmentManager/",
+                "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": "s3:GetObject",
+                            "Resource": [
+                                {
+                                    "Fn::Sub": "arn:aws:s3:::${pRedisCryptoKeyS3Bucket}/${pRedisCryptoKeyS3Key}"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
         "roleInfraEnvironmentManagerCache": {
             "Type": "AWS::IAM::Role",
             "Properties": {
@@ -130,6 +159,9 @@
                     },
                     {
                         "Ref": "policyWriteEnvironmentManagerTables"
+                    },
+                    {
+                        "Ref": "policyReadRedisCryptoKey"
                     }
                 ]
             }
