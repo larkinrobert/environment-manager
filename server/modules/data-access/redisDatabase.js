@@ -9,12 +9,18 @@ let dynamoTableDescription = require('modules/data-access/dynamoTableDescription
 let emCrypto = require('modules/emCrypto');
 let fp = require('lodash/fp');
 let logger = require('modules/logger');
+let memoize = require('modules/memoize');
 let Redis = require('ioredis');
 
 const EM_REDIS_CRYPTO_KEY_S3_BUCKET = config.get('EM_REDIS_CRYPTO_KEY_S3_BUCKET');
 const EM_REDIS_CRYPTO_KEY_S3_KEY = config.get('EM_REDIS_CRYPTO_KEY_S3_KEY');
 const EM_REDIS_ADDRESS = config.get('EM_REDIS_ADDRESS');
 const EM_REDIS_PORT = config.get('EM_REDIS_PORT');
+
+let getRedisDecryptionKeyFromS3 = memoize(() => masterAccountClient.createS3Client().then(s3 => s3.getObject({
+  Bucket: EM_REDIS_CRYPTO_KEY_S3_BUCKET,
+  Key: EM_REDIS_CRYPTO_KEY_S3_KEY,
+}).promise()).then(rsp => rsp.Body));
 
 function connect({ address, port }) {
   return new Promise((resolve, reject) => {
@@ -57,10 +63,7 @@ function redisDatabase(options) {
         let tableArn = tableDescription.Table.TableArn;
         return usingRedisConnection(connectDefault, redis => redis.hgetallBuffer(tableArn));
       });
-    let getCryptoKey = masterAccountClient.createS3Client().then(s3 => s3.getObject({
-      Bucket: EM_REDIS_CRYPTO_KEY_S3_BUCKET,
-      Key: EM_REDIS_CRYPTO_KEY_S3_KEY,
-    }).promise()).then(rsp => rsp.Body);
+    let getCryptoKey = getRedisDecryptionKeyFromS3();
 
     return Promise.all([getEncryptedResults, getCryptoKey])
       .then(([obj, key]) => fp.mapValues(
@@ -75,23 +78,3 @@ function redisDatabase(options) {
 }
 
 module.exports = redisDatabase;
-
-function outputPairs(logicalName) {
-  return [
-    [`${logicalName}Table`, {
-      Description: `${logicalName} DynamoDB Table`,
-      Value: {
-        Ref: logicalName,
-      },
-    }],
-    [`${logicalName}Stream`, {
-      Description: `${logicalName} DynamoDB Stream`,
-      Value: {
-        'Fn::GetAtt': [
-          logicalName,
-          'StreamArn',
-        ],
-      },
-    }],
-  ];
-}
