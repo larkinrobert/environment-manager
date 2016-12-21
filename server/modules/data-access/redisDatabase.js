@@ -3,7 +3,7 @@
 'use strict';
 
 let awsResourceNameProvider = require('modules/awsResourceNameProvider');
-let masterAccountClient = require('modules/amazon-client/masterAccountClient')
+let masterAccountClient = require('modules/amazon-client/masterAccountClient');
 let config = require('config');
 let dynamoTableDescription = require('modules/data-access/dynamoTableDescription');
 let emCrypto = require('modules/emCrypto');
@@ -75,3 +75,23 @@ function redisDatabase(options) {
 }
 
 module.exports = redisDatabase;
+
+function outputPairs(logicalName) {
+  return [
+    [`${logicalName}Table`, {
+      Description: `${logicalName} DynamoDB Table`,
+      Value: {
+        Ref: logicalName,
+      },
+    }],
+    [`${logicalName}Stream`, {
+      Description: `${logicalName} DynamoDB Stream`,
+      Value: {
+        'Fn::GetAtt': [
+          logicalName,
+          'StreamArn',
+        ],
+      },
+    }],
+  ];
+}

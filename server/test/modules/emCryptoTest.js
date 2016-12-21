@@ -3,7 +3,7 @@
 'use strict'
 
 require('should');
-let sut = require('./em-crypto');
+let sut = require('modules/emCrypto');
 
 describe('decrypting an encrypted value', function () {
     it('returns the input value', function () {
