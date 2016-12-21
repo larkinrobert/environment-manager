@@ -50,7 +50,7 @@ function processRecords(redis, records) {
     return s3.getObject({
         Bucket: CRYPTO_KEY_S3_BUCKET,
         Key: CRYPTO_KEY_S3_KEY,
-    }).promise.then(s3Obj => {
+    }).promise().then(s3Obj => {
         let cryptoKey = s3Obj.Body;
         function processRecord(record) {
             let tableARN = getTableARN(record.eventSourceARN);

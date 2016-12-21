@@ -3,11 +3,16 @@
 'use strict';
 
 let awsResourceNameProvider = require('modules/awsResourceNameProvider');
+let masterAccountClient = require('modules/amazon-client/masterAccountClient')
 let config = require('config');
 let dynamoTableDescription = require('modules/data-access/dynamoTableDescription');
+let emCrypto = require('modules/emCrypto');
+let fp = require('lodash/fp');
 let logger = require('modules/logger');
 let Redis = require('ioredis');
 
+const EM_REDIS_CRYPTO_KEY_S3_BUCKET = config.get('EM_REDIS_CRYPTO_KEY_S3_BUCKET');
+const EM_REDIS_CRYPTO_KEY_S3_KEY = config.get('EM_REDIS_CRYPTO_KEY_S3_KEY');
 const EM_REDIS_ADDRESS = config.get('EM_REDIS_ADDRESS');
 const EM_REDIS_PORT = config.get('EM_REDIS_PORT');
 
@@ -47,20 +52,21 @@ function redisDatabase(options) {
   let connectDefault = connect.bind(null, { address: EM_REDIS_ADDRESS, port: EM_REDIS_PORT });
 
   function getAll(accountNumber) {
-    return dynamoTableDescription(TABLE_NAME, accountNumber)
+    let getEncryptedResults = dynamoTableDescription(TABLE_NAME, accountNumber)
       .then((tableDescription) => {
         let tableArn = tableDescription.Table.TableArn;
-        return usingRedisConnection(connectDefault, redis => redis.hgetall(tableArn));
-      })
-      .then((values) => {
-        if (typeof values === 'string') {
-          return JSON.parse(values);
-        } else if (Array.isArray(values)) {
-          return values.map(value => JSON.parse(value));
-        } else {
-          return Object.keys(values).map(key => JSON.parse(values[key]));
-        }
+        return usingRedisConnection(connectDefault, redis => redis.hgetallBuffer(tableArn));
       });
+    let getCryptoKey = masterAccountClient.createS3Client().then(s3 => s3.getObject({
+      Bucket: EM_REDIS_CRYPTO_KEY_S3_BUCKET,
+      Key: EM_REDIS_CRYPTO_KEY_S3_KEY,
+    }).promise()).then(rsp => rsp.Body);
+
+    return Promise.all([getEncryptedResults, getCryptoKey])
+      .then(([obj, key]) => fp.mapValues(
+        fp.flow(
+          ciphertext => emCrypto.decrypt(key, ciphertext),
+          plaintext => JSON.parse(plaintext)))(obj));
   }
 
   return {
