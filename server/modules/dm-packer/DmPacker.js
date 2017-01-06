@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let archiver = require('archiver');
@@ -8,11 +8,11 @@ let simpleHttp = require('./simple-http');
 let dm = require('./deployment-map');
 let retryLib = require('./retry');
 let config = require('config');
-
+let s3Url = require('modules/amazon-client/s3Url');
 
 module.exports = function DmPacker(logger) {
 
-  let retry = retryLib({logger: logger, maxAttempts: 4});
+  let retry = retryLib({ logger: logger, maxAttempts: 4 });
 
   this.buildCodeDeployPackage = function (deploymentMap) {
     let options = {
@@ -41,7 +41,7 @@ module.exports = function DmPacker(logger) {
             logger.info("Packaging complete");
           });
           archive.on('error', err => {
-              throw err;
+            throw err;
           });
           entryStream.on("data", entry => {
             archive.append(entry.content, { name: entry.path });
@@ -63,7 +63,12 @@ module.exports = function DmPacker(logger) {
   };
 
   this.getCodeDeployPackage = function (url) {
+    if (s3Url.parse(url) !== undefined) {
+      logger.info(`Downloading package from S3: ${url}`);
+      return Promise.resolve(s3Url.getObject(url));
+    }
     return co(function* () {
+      logger.info(`Downloading package: ${url}`);
       let input = yield simpleHttp.getResponseStream(url);
       let headers = input.headers;
       if (!(/\/zip$/.test(headers["content-type"]))) {
@@ -75,19 +80,29 @@ module.exports = function DmPacker(logger) {
 
   this.uploadCodeDeployPackage = function (destination, stream, s3client) {
     return new Promise((resolve, reject) => {
-      s3client.upload({
-        Bucket: destination.bucket,
-        Key: destination.key,
-        Body: stream
-      }, (err, data) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(data);
-        }
+      try {
+        stream.on('error', err => reject(err));
+        s3client.upload({
+          Bucket: destination.bucket,
+          Key: destination.key,
+          Body: stream
+        }, (err, data) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(data);
+          }
+        });
+      } catch (err) {
+        reject(err);
+      }
+    }).then(
+      rsp => {
+        logger.info(`Package uploaded to: ${rsp.Location}`);
+      },
+      err => {
+        logger.error(`Package upload failed: ${err.message}`);
       });
-      //.on('httpUploadProgress', evt => { logger.info(evt); });
-    });
   };
 
   function downloadFile(item) {

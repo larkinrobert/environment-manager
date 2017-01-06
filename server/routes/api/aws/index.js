@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let send = require('modules/helpers/send');
@@ -53,7 +53,7 @@ function requestAccounts(req, res) {
 function addAccount(req, res) {
   let command = {
     name: 'AddAWSaccount',
-    data: req.body,
+    account: req.body,
     user: req.user
   };
   send.command(command, req, res);
@@ -62,7 +62,7 @@ function addAccount(req, res) {
 function updateAccount(req, res) {
   let command = {
     name: 'UpdateAWSaccount',
-    data: req.body,
+    account: req.body,
     user: req.user
   };
   send.command(command, req, res);

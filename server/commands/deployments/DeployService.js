@@ -1,14 +1,12 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let co = require('co');
 let Enums = require('Enums');
 let assertContract = require('modules/assertContract');
 
-let Deployment = require('models/Deployment');
+let DeploymentContract = require('modules/deployment/DeploymentContract');
 let UnknownSourcePackageTypeError = require('modules/errors/UnknownSourcePackageTypeError.class');
-
-let deploymentValidators = require('modules/deployment/deploymentValidators');
 
 let sender = require('modules/sender');
 let infrastructureConfigurationProvider = require('modules/provisioning/infrastructureConfigurationProvider');
@@ -34,7 +32,11 @@ module.exports = function DeployServiceCommandHandler(command) {
     let deployment = yield validateCommandAndCreateDeployment(command);
     let destination = yield packagePathProvider.getS3Path(deployment);
     let sourcePackage = getSourcePackageByCommand(command);
+
+    // Run asynchronously, we don't wait for deploy to finish intentionally
     deploy(deployment, destination, sourcePackage, command);
+    let accountName = deployment.accountName;
+    yield deploymentLogger.started(deployment, accountName);
     return deployment;
   });
 };
@@ -42,12 +44,12 @@ module.exports = function DeployServiceCommandHandler(command) {
 function validateCommandAndCreateDeployment(command) {
   return co(function* () {
     
-    var configuration = yield infrastructureConfigurationProvider.get(
+    let configuration = yield infrastructureConfigurationProvider.get(
       command.environmentName, command.serviceName, command.serverRoleName
     );
 
-    var roleName = namingConventionProvider.getRoleName(configuration, command.serviceSlice);
-    var deployment = new Deployment({
+    let roleName = namingConventionProvider.getRoleName(configuration, command.serviceSlice);
+    let deploymentContract = new DeploymentContract({
       id: command.commandId,
       environmentTypeName: configuration.environmentTypeName,
       environmentName: command.environmentName,
@@ -61,16 +63,14 @@ function validateCommandAndCreateDeployment(command) {
       username: command.username,
     });
 
-    // Checking deployment is valid through all validators otherwise return a rejected promise
-    yield deploymentValidators.map(validator => validator.validate(deployment, configuration));
-    return deployment;
+    yield deploymentContract.validate(configuration);    
+    return deploymentContract;
   });
 }
 
 function deploy(deployment, destination, sourcePackage, command) {
   return co(function* () {
-    var accountName = deployment.accountName;
-    yield deploymentLogger.started(deployment, accountName);
+    let accountName = deployment.accountName;
     yield provideInfrastructure(accountName, deployment, command);
     yield preparePackage(accountName, destination, sourcePackage, command);
     yield pushDeployment(accountName, deployment, destination, command);
@@ -97,7 +97,7 @@ function deploy(deployment, destination, sourcePackage, command) {
 }
 
 function provideInfrastructure(accountName, deployment, parentCommand) {
-  var command = {
+  let command = {
     name: 'ProvideInfrastructure',
     accountName,
     deployment,
@@ -107,7 +107,7 @@ function provideInfrastructure(accountName, deployment, parentCommand) {
 }
 
 function preparePackage(accountName, destination, source, parentCommand) {
-  var command = {
+  let command = {
     name: 'PreparePackage',
     accountName,
     destination,
@@ -118,7 +118,7 @@ function preparePackage(accountName, destination, source, parentCommand) {
 }
 
 function pushDeployment(accountName, deployment, s3Path, parentCommand) {
-  var command = {
+  let command = {
     name: 'PushDeployment',
     accountName,
     deployment,

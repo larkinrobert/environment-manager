@@ -1,4 +1,4 @@
-﻿/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+﻿/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 angular.module('EnvironmentManager.operations').controller('OpsAMIsController',
@@ -15,28 +15,9 @@ angular.module('EnvironmentManager.operations').controller('OpsAMIsController',
 
     $scope.SelectedAccount = '';
 
-    var querySync = new QuerySync($scope, {
-      environment: {
-        property: 'SelectedEnvironment',
-        default: 'pr1',
-      },
-      cluster: {
-        property: 'SelectedOwningCluster',
-        default: SHOW_ALL_OPTION,
-      },
-      server: {
-        property: 'SelectedServerRole',
-        default: '',
-      },
-      ami: {
-        property: 'SelectedAmi',
-        default: '',
-      }
-    });
+    var querySync;
 
     function init() {
-      querySync.init();
-
       $q.all([
         cachedResources.config.environments.all().then(function (environments) {
           environments.sort(function (source, target) {
@@ -44,6 +25,27 @@ angular.module('EnvironmentManager.operations').controller('OpsAMIsController',
           }).forEach(function (environment) {
             $scope.EnvironmentsList[environment.EnvironmentName] = environment;
           });
+
+          querySync = new QuerySync($scope, {
+            environment: {
+              property: 'SelectedEnvironment',
+              default: environments[0].EnvironmentName,
+            },
+            cluster: {
+              property: 'SelectedOwningCluster',
+              default: SHOW_ALL_OPTION,
+            },
+            server: {
+              property: 'SelectedServerRole',
+              default: '',
+            },
+            ami: {
+              property: 'SelectedAmi',
+              default: '',
+            }
+          });
+
+          querySync.init();
         }),
 
         cachedResources.config.clusters.all().then(function (clusters) {
@@ -63,18 +65,18 @@ angular.module('EnvironmentManager.operations').controller('OpsAMIsController',
 
       querySync.updateQuery();
 
-      accountMappingService.GetAccountForEnvironment($scope.SelectedEnvironment).then(function (accountName) {
+      accountMappingService.getAccountForEnvironment($scope.SelectedEnvironment).then(function (accountName) {
         $scope.SelectedAccount = accountName;
 
         var params = {
           account: accountName,
           query: {
-            'tag:Environment': $scope.SelectedEnvironment,
+            'environment': $scope.SelectedEnvironment,
           },
         };
 
         if ($scope.SelectedOwningCluster != SHOW_ALL_OPTION) {
-          params.query['tag:OwningCluster'] = $scope.SelectedOwningCluster;
+          params.query['cluster'] = $scope.SelectedOwningCluster;
         }
 
         awsService.instances.GetInstanceDetails(params).then(function (instanceData) {

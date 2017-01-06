@@ -1,9 +1,8 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let route = require('modules/helpers/route');
 let adapt = require('modules/callbackAdapter');
-let noAuthorization = require('modules/authorizers/none');
 let userService = require('modules/user-service');
 let tokenConfiguration = require('modules/authentications/tokenAuthenticationConfiguration');
 

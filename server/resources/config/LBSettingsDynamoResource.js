@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let authorizer = require('modules/authorizers/load-balancer-settings');
@@ -17,7 +17,7 @@ module.exports = {
   exportable: true,
   importable: true,
   docs: {
-      description: 'Load Balancer Settings',
-      tags: ["Load Balancer Settings"]
+    description: 'Load Balancer Settings',
+    tags: ["Load Balancer Settings"]
   }
 };

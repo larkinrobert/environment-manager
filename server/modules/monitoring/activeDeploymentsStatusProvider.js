@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let co = require('co');
@@ -172,7 +172,9 @@ function getExpectedNodesIdByDeployment(deployment) {
 
     try {
       let autoScalingGroup = yield sender.sendQuery({ query });
-      let nodeIds = autoScalingGroup.Instances.map(instance => instance.InstanceId);
+      let nodeIds = autoScalingGroup.Instances
+        .filter(instance => instance.LifecycleState === 'InService')
+        .map(instance => instance.InstanceId);
       return nodeIds;
     } catch (err) {
       logger.error(`Couldn't find AutoScalingGroup - it's not in cached array?`);

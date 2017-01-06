@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 const TEN_MINUTES = 10 * 60;
@@ -11,7 +11,7 @@ let fetchAccounts  = require('queryHandlers/GetAWSaccounts');
 let cacheManager = require('modules/cacheManager');
 let accountsCache = cacheManager.create(CACHE_KEY, fetchAccounts, { stdTTL: TEN_MINUTES, logHits:false });
 
-function getAccountByName(accountName) {
+function getByName(accountName) {
   let matches = val => accountName.toLowerCase() === val.toString().toLowerCase();
 
   return getAllAccounts().then(accounts => {
@@ -40,15 +40,15 @@ function getAllAccounts() {
   return accountsCache.get(CACHE_KEY);
 }
 
-function flushAccounts() {
+function flush() {
   accountsCache.flushAll();
   return getMasterAccount().then(account => config.setUserValue('masterAccountName', account.AccountName));
 }
 
 module.exports = {
-  flush: flushAccounts,
+  flush,
   all: getAllAccounts,
-  getByName: getAccountByName,
-  getMasterAccount: getMasterAccount,
-  getAMIsharingAccounts: getAMIsharingAccounts
+  getByName,
+  getMasterAccount,
+  getAMIsharingAccounts
 };

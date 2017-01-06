@@ -1,10 +1,8 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 var path = require('path');
 var conf = require('./gulp/conf');
-
-var _ = require('lodash');
 
 var pathSrcHtml = [
   path.join(conf.paths.src, '/**/*.html')
@@ -68,7 +66,8 @@ module.exports = function(config) {
       'karma-angular-filesort',
       'karma-coverage',
       'karma-jasmine',
-      'karma-ng-html2js-preprocessor'
+      'karma-ng-html2js-preprocessor',
+      'karma-teamcity-reporter'
     ],
 
     coverageReporter: {
@@ -91,20 +90,6 @@ module.exports = function(config) {
   pathSrcHtml.forEach(function(path) {
     configuration.preprocessors[path] = ['ng-html2js'];
   });
-
-  // This block is needed to execute Chrome on Travis
-  // If you ever plan to use Chrome and Travis, you can keep it
-  // If not, you can safely remove it
-  // https://github.com/karma-runner/karma/issues/1144#issuecomment-53633076
-  if(configuration.browsers[0] === 'Chrome' && process.env.TRAVIS) {
-    configuration.customLaunchers = {
-      'chrome-travis-ci': {
-        base: 'Chrome',
-        flags: ['--no-sandbox']
-      }
-    };
-    configuration.browsers = ['chrome-travis-ci'];
-  }
 
   config.set(configuration);
 };

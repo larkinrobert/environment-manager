@@ -1,4 +1,4 @@
-﻿/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+﻿/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let url = require('url');
@@ -10,10 +10,10 @@ module.exports = (request, response) => {
 
   let query = {
     name: 'GetNodeDeploymentLog',
-    account: params.account,
+    accountName: params.account,
     environment: params.environment,
     deploymentId: params.deploymentId,
-    node: params.node,
+    instanceId: params.node,
   };
 
   sender.sendQuery({ query: query, user: request.user }).then(data => {

@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let config = require('config');
@@ -20,6 +20,7 @@ function getAccountByEnvironment(command) {
     .then(getEnvType)
     .then(configCache.getEnvironmentTypeByName)
     .then(getAccountName)
+    .then((account) => validateAccount(command.environment, account))
     .catch(e => { throw new Error(getErrorMsg(command, e)) });
 }
 
@@ -36,6 +37,13 @@ function getErrorMsg(command, error) {
     case 'AWSAccountName':      return `Could not find environment type for ${command.environment}`; break;
     default:                    return error.message;
   }
+}
+
+function validateAccount(environment, account) {
+  if (!account) {
+    throw new Error(`Could not find Account associated with environment '${environment}'`);
+  }
+  return account;
 }
 
 module.exports = getAccountByEnvironment;

@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 angular.module('EnvironmentManager.configuration').component('copyServerRole', {
@@ -53,7 +53,7 @@ angular.module('EnvironmentManager.configuration').component('copyServerRole', {
     function copyTo(deploymentMap, overwriteServerRole) {
 
       if (overwriteServerRole === true) {
-        var index = _.findIndex(deploymentMap.Value.DeploymentTarget, {ServerRoleName: vm.serverRole.ServerRoleName});
+        var index = _.findIndex(deploymentMap.Value.DeploymentTarget, { ServerRoleName: vm.serverRole.ServerRoleName });
         deploymentMap.Value.DeploymentTarget[index] = vm.serverRole;
       } else {
         // Add new record
@@ -66,9 +66,7 @@ angular.module('EnvironmentManager.configuration').component('copyServerRole', {
       var params = {
         key: deploymentMap.DeploymentMapName,
         expectedVersion: deploymentMap.Version,
-        data: {
-          Value: { DeploymentTarget: deploymentMapValue },
-        },
+        data: { DeploymentTarget: deploymentMapValue },
       };
 
       resources.config.deploymentMaps.put(params).then(function () {

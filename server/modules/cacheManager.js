@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 /**
  * An in-memory cache that decouples the getting of an item from
  * the handling of a cache miss.
@@ -59,8 +59,8 @@ const cacheManager = {
 function createCache(name, cache, fn, pending, logger, logHits) {
 
   return {
-    get: get,
-    del: del,
+    get,
+    del,
     mget: cache.mget.bind(cache),
     keys: cache.keys.bind(cache),
     set: setInCache,

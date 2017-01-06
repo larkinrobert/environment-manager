@@ -1,7 +1,5 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
-
-// TODO(filip): replace this with proper error handling middleware
 
 function getStatusCode(error) {
   if (error.name !== undefined) {
@@ -50,7 +48,7 @@ function promiseToExpress(req, res) {
   let callback = callbackToExpress(req, res);
   return function (promise) {
     promise.then((result) => callback(null, result), (err) => callback(err));
-  }
+  };
 } 
 
 module.exports = {

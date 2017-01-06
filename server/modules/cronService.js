@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 ﻿function buildCronService() {
@@ -176,7 +176,6 @@
 
             //rate
             if (array[i].match("/\*\\/")) {
-                console.log("matched rate " + array + "  " + nowdate);
                 rate = array[i].split("\/")[1];
                 if (nowdate[i] % rate == 0) { matchCount++; ratect++; continue; }
                 else { decrement = Math.max(calculateDecrement(i, rate, d), decrement) }
@@ -251,10 +250,10 @@
 
     function ScheduleInterpreter(ScheduleTagString, datetime) {
         if (!datetime) {
-			var now = new Date();
-			var now_utc = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
-			datetime = now_utc;
-		}
+    			var now = new Date();
+    			var now_utc = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
+    			datetime = now_utc;
+    		}
         if (!ScheduleTagString) return null;
 
         var Schedule = ScheduleTagString.toUpperCase().trim().replace(';', '');
@@ -265,7 +264,7 @@
         if (Schedule.match("NOSCHEDULE")) return "SKIP";
         if (Schedule.match("DEFAULT")) return "DEFAULT";
         if (Schedule.match(/^$/)) return null;
-        if (!Schedule.match(/START\:|STOP\:/)) { console.log("no start or stop found"); return "INVALID"; };
+        if (!Schedule.match(/START\:|STOP\:/)) { return "INVALID"; };
 
         // Split into array of Start and Stop cronstrings;
         var ScheduleParts = Schedule.match(/(\w*\: [\d\,\-\*\\]+ [\d\,\-\*\\]+ [\d\,\-\*\\\w]+ [\d\,\-\*\\\w]+ [\d\,\-\*\\\w]+\s?[\d\,\-\*]*)/g);

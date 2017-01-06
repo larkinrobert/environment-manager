@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let assert = require('assert');
@@ -13,6 +13,7 @@ module.exports = {
       EnvironmentType: configuration.environmentTypeName,
       Environment: configuration.environmentName,
       OwningCluster: configuration.cluster.Name,
+      OwningClusterShortName: configuration.cluster.ShortName,
       Role: roleName,
       SecurityZone: configuration.serverRole.SecurityZone,
       Schedule: configuration.serverRole.ScheduleTag || '',

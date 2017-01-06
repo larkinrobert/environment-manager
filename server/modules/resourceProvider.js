@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let requireDirectory = require('require-directory');
@@ -22,7 +22,7 @@ function getInstanceByDescriptor(resourceDescriptor, parameters) {
 
 function getInstanceByName(resourceName, parameters) {
   var resourceDescriptor = resourceDescriptorProvider.get(resourceName);
-  if (resourceDescriptor !== null) return getInstanceByDescriptor(resourceDescriptor, parameters);
+  if (resourceDescriptor !== null && resourceDescriptor !== undefined) return getInstanceByDescriptor(resourceDescriptor, parameters);
   else return Promise.reject(new Error(`No resource found with name "${resourceName}".`));
 }
 

@@ -1,21 +1,22 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let express = require('express');
 let bodyParser = require('body-parser');
 let cookieParser = require('cookie-parser');
 let logger = require('modules/logger');
-let expressWinston = require('express-winston');
 let winston = require('winston');
 let fs = require('fs');
 let config = require('config/');
 let compression = require('compression');
+let expressWinston = require('express-winston');
 
 let serverFactoryConfiguration = new(require('modules/serverFactoryConfiguration'))();
 let tokenAuthentication = require('modules/authentications/tokenAuthentication');
 let cookieAuthentication = require('modules/authentications/cookieAuthentication');
 let authentication = require('modules/authentication');
 let deploymentMonitorScheduler = require('modules/monitoring/DeploymentMonitorScheduler');
+let apiV1 = require('api/v1');
 
 const APP_VERSION = require('config').get('APP_VERSION');
 
@@ -54,6 +55,7 @@ module.exports = function MainServer() {
       app.use(bodyParser.json({ extended: false, limit: '50mb' }));
       app.use(cookieAuthentication.middleware);
       app.use(tokenAuthentication.middleware);
+
       /* notice how the router goes after the logger.
        * https://www.npmjs.com/package/express-winston#request-logging */
       if (config.get('IS_PRODUCTION') === true) {
@@ -63,13 +65,12 @@ module.exports = function MainServer() {
       const PUBLIC_DIR = config.get('PUBLIC_DIR');
       logger.info(`Serving static files from "${PUBLIC_DIR}"`);
 
-      let staticPaths = ['*.js', '*.css', '*.html', '*.ico', '*.gif', '*.woff2', '*.ttf', '*.woff', '*.svg', '*.eot', '*.jpg', '*.png'];
+      let staticPaths = ['*.js', '*.css', '*.html', '*.ico', '*.gif', '*.woff2', '*.ttf', '*.woff', '*.svg', '*.eot', '*.jpg', '*.png', '*.map'];
       app.get(staticPaths, authentication.allowUnknown, express.static(PUBLIC_DIR));
       app.get('/', authentication.denyUnauthorized, express.static(PUBLIC_DIR));
 
-      app.get('/docs*', authentication.denyUnauthorized, express.static(PUBLIC_DIR));
       app.get('*.js', authentication.allowUnknown, express.static('modules'));
-      
+
       // routing for API JSON Schemas
       app.use('/schema', authentication.allowUnknown, express.static(`${PUBLIC_DIR}/schema`));
 
@@ -84,13 +85,11 @@ module.exports = function MainServer() {
       app.get('/api/initial-data', authentication.denyUnauthorized, routes.initialData);
       app.use('/api', routeInstaller());
 
-      app.get('/version', authentication.allowUnknown, function (req, res) {
-        res.send(APP_VERSION);
-      });
-
       if (config.get('IS_PRODUCTION') === true) {
         app.use(expressWinston.errorLogger({ winstonInstance: logger }));
       }
+
+      apiV1.setup(app);
 
       resolve(app);
     });
@@ -113,5 +112,4 @@ module.exports = function MainServer() {
     deploymentMonitorScheduler.start();
     logger.info(`EnvironmentManager v.${APP_VERSION} started!`);
   }
-
 };

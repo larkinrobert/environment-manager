@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 // Manage Load Balancer settings
@@ -38,7 +38,8 @@ angular.module('EnvironmentManager.configuration').controller('LBsController',
           $scope.EnvironmentsList = _.map(environments, 'EnvironmentName').sort();
         }),
 
-        cachedResources.aws.accounts.all().then(function (accounts) {
+        cachedResources.config.accounts.all().then(function (accounts) {
+          accounts = _.map(accounts, 'AccountName');
           $scope.AccountsList = [SHOW_ALL_OPTION].concat(accounts).sort();
         }),
       ]).then(function () {
@@ -57,16 +58,16 @@ angular.module('EnvironmentManager.configuration').controller('LBsController',
 
       $scope.DataLoading = true;
 
-      accountMappingService.GetAccountForEnvironment($scope.SelectedEnvironment).then(function (accountName) {
+      accountMappingService.getAccountForEnvironment($scope.SelectedEnvironment).then(function (accountName) {
         var params = {
           account: accountName,
           query: {
-            EnvironmentName: $scope.SelectedEnvironment,
+            environment: $scope.SelectedEnvironment,
           },
         };
 
         if ($scope.SelectedSettingType != SHOW_ALL_OPTION) {
-          params.query['Value.FrontEnd'] = $scope.SelectedSettingType == 'Front End' ? true : false;
+          params.query.frontend = $scope.SelectedSettingType == 'Front End' ? true : false;
         }
 
         resources.config.lbSettings.all(params).then(function (data) {
@@ -140,7 +141,7 @@ angular.module('EnvironmentManager.configuration').controller('LBsController',
         severity: 'Danger',
       }).then(function () {
 
-        accountMappingService.GetAccountForEnvironment(env).then(function (accountName) {
+        accountMappingService.getAccountForEnvironment(env).then(function (accountName) {
           DeleteLBSetting(accountName, env, hostName).then(function () {
             $scope.Refresh();
           }).finally(function () {
@@ -220,7 +221,7 @@ angular.module('EnvironmentManager.configuration').controller('LBsController',
     };
 
     function DeleteAllLBSettings(env) {
-      accountMappingService.GetAccountForEnvironment(env).then(function (accountName) {
+      accountMappingService.getAccountForEnvironment(env).then(function (accountName) {
         $q.all(
           $scope.Data.forEach(function (lbSetting) {
             return DeleteLBSetting(accountName, env, lbSetting.VHostName);

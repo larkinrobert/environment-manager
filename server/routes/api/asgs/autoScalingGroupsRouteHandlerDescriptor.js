@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let send = require('modules/helpers/send');
@@ -26,7 +26,11 @@ module.exports = [
     send.query(query, request, response);
   }),
   route.get('/:account/asgs')
-  .withDocs({ description: 'Auto Scaling Group', perAccount: true, verb: 'scan', tags: ['Auto Scaling Groups'] }).do((request, response) => {
+  .withDocs({ description: 'Auto Scaling Group', perAccount: true, verb: 'scan', tags: ['Auto Scaling Groups'] }).do((request, response, next) => {
+    if (request.params.account === 'v1') {
+      return next();
+    }
+
     var query = {
       name: 'ScanAutoScalingGroups',
       accountName: request.params.account,
@@ -39,7 +43,8 @@ module.exports = [
     description: 'Auto Scaling Group',
     perAccount: true,
     tags: ['Auto Scaling Groups'],
-  }).do((request, response) => {
+  }).do((request, response, next) => {
+
     var query = {
       name: 'GetAutoScalingGroup',
       accountName: request.params.account,
@@ -78,7 +83,7 @@ module.exports = [
     }
 
     return null;
-  }).do((request, response) => {
+  }).do((request, response, next) => {
     var command = {
       name: 'SetAutoScalingGroupSize',
       accountName: request.params.account,

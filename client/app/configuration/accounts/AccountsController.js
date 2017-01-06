@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 angular.module('EnvironmentManager.configuration').controller('AccountsController',
@@ -35,13 +35,13 @@ angular.module('EnvironmentManager.configuration').controller('AccountsControlle
     };
 
     vm.loadData = function () {
-      cachedResources.config.awsAccounts.all().then(function (data) {
+      cachedResources.config.accounts.all().then(function (data) {
         updateAccounts(data)
       });
     };
 
     vm.refreshData = function () {
-      cachedResources.config.awsAccounts.flush();
+      cachedResources.config.accounts.flush();
       vm.loadData();
     };
 
@@ -62,7 +62,7 @@ angular.module('EnvironmentManager.configuration').controller('AccountsControlle
     }
 
     function removeAccount(account) {
-      $http.delete('/api/aws/account', { params: {accountNumber: account.AccountNumber} }).then(function () {
+      $http.delete('/api/v1/config/accounts/' + account.AccountNumber).then(function () {
         vm.refreshData();
       });
     }

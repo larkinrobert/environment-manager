@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 angular.module('EnvironmentManager.environments').component('asgInstances', {
@@ -8,18 +8,16 @@ angular.module('EnvironmentManager.environments').component('asgInstances', {
     asgState: '<',
   },
   controllerAs: 'vm',
-  controller: function (awsService, $q, $uibModal) {
+  controller: function ($uibModal) {
     var vm = this;
     vm.dataLoading = false;
+    vm.showRDC = vm.asg.Ami.Platform === 'Windows';
 
     vm.showAsgSingleInstance = function (instance) {
       $uibModal.open({
         component: 'asgSingleInstance',
         size: 'lg',
         resolve: {
-          asg: function () {
-            return vm.asg;
-          },
           instance: function () {
             return instance;
           },

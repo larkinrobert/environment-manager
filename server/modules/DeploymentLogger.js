@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let systemUser = require('modules/systemUser');
@@ -25,6 +25,7 @@ module.exports = {
           ServiceName: deployment.serviceName,
           ServiceSlice: deployment.serviceSlice,
           ServiceVersion: deployment.serviceVersion,
+          RuntimeServerRoleName: deployment.serverRole,
           ServerRoleName: deployment.serverRoleName,
           Status: 'In Progress',
           User: deployment.username,
@@ -47,13 +48,18 @@ module.exports = {
   updateStatus: function(deploymentStatus, newStatus) {
     logger.debug(`Updating deployment '${deploymentStatus.deploymentId}' status to '${newStatus.name}'`);
 
+    /**
+     * flush log entries before changing status. A status change may move
+     * the record to another table. If this occurs before the log entries
+     * are flushed then the log entries may not be written.
+     */
     return Promise.all([
-      updateDeploymentDynamoTable(deploymentStatus, newStatus),
+      Promise.resolve(deploymentLogsStreamer.log(deploymentStatus.deploymentId, deploymentStatus.accountName, newStatus.reason))
+        .then(() => deploymentLogsStreamer.flush(deploymentStatus.deploymentId))
+        .then(() => updateDeploymentDynamoTable(deploymentStatus, newStatus)),
       updateDeploymentTargetState(deploymentStatus, newStatus),
-    ]).then(() => {
-      deploymentLogsStreamer.log(deploymentStatus.deploymentId, deploymentStatus.accountName, newStatus.reason);
-    });
-  }
+    ]);
+  },
 };
 
 

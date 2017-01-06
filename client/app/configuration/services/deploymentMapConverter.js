@@ -1,4 +1,4 @@
-﻿/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+﻿/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 angular.module('EnvironmentManager.configuration').factory('deploymentMapConverter',
@@ -18,7 +18,6 @@ angular.module('EnvironmentManager.configuration').factory('deploymentMapConvert
     // TODO: if schema is updated so each target is a separate record, this service will no longer be required
     return {
       toDeploymentTarget: function (data) {
-
 
         // Adjust schema to reflect preferred model
         var deploymentTarget = {
@@ -91,7 +90,7 @@ angular.module('EnvironmentManager.configuration').factory('deploymentMapConvert
             Name: 'Data',
             Size: target.ASG.LaunchConfig.Volumes[1].Size || 10,
             Type: target.ASG.LaunchConfig.Volumes[1].Type || 'Disk',
-          },],
+          }],
           PuppetRole: target.ASG.LaunchConfig.PuppetRole,
           RoleTag: target.ASG.Tags.Role,
           ScheduleTag: target.ASG.Tags.Schedule,

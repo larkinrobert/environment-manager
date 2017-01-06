@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let send = require('modules/helpers/send');
@@ -51,6 +51,37 @@ module.exports = [
       name: 'ScanInstances',
       accountName: request.params.account,
       filter: utilities.extractQuery(request),
+    };
+
+    send.query(query, request, response);
+  }),
+
+  route.get('/:account/instances/schedule-actions')
+  .inOrderTo('List instances changes needed due to scheduling')
+  .withDocs({
+    disableDocs: true
+  })
+  .do((request, response) => {
+    var query = {
+      name: 'ScanInstancesScheduleStatus',
+      accountName: request.params.account,
+      filter: utilities.extractQuery(request),
+    };
+
+    send.query(query, request, response);
+  }),
+
+  route.get('/:account/instances/schedule-actions/:dateTime')
+  .inOrderTo('List instances changes needed due to scheduling as of a particular date and time')
+  .withDocs({
+    disableDocs: true
+  })
+  .do((request, response) => {
+    var query = {
+      name: 'ScanInstancesScheduleStatus',
+      accountName: request.params.account,
+      filter: utilities.extractQuery(request),
+      dateTime: request.params.dateTime
     };
 
     send.query(query, request, response);

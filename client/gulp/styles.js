@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 var path = require('path');
@@ -6,10 +6,7 @@ var gulp = require('gulp');
 var conf = require('./conf');
 
 var browserSync = require('browser-sync');
-
 var $ = require('gulp-load-plugins')();
-
-var _ = require('lodash');
 
 gulp.task('styles-reload', ['styles'], function() {
   return buildStyles()

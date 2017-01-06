@@ -1,8 +1,9 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let assertContract = require('modules/assertContract');
 let DeploymentContract = require('modules/deployment/DeploymentContract');
+let Enums = require('Enums');
 
 module.exports = function ServerRoleDefinitionKeyValueProvider() {
   this.get = function (deployment) {
@@ -27,6 +28,7 @@ module.exports = function ServerRoleDefinitionKeyValueProvider() {
         Slice: serviceSlice || 'none',
         DeploymentId: deploymentId,
         InstanceIds: [],
+        Action: Enums.ServiceAction.INSTALL
       },
     };
 

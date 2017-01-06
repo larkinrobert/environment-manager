@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let co = require('co');
@@ -20,7 +20,7 @@ module.exports = function GetLaunchConfiguration(query) {
 
     let Volumes = instanceDevicesProvider.fromAWS(awsLaunchConfig.BlockDeviceMappings);
 
-    let image = yield Image.getById(awsLaunchConfig.ImageId)
+    let image = yield Image.getById(awsLaunchConfig.ImageId);
 
     let environmentType = yield autoScalingGroup.getEnvironmentType();
     let vpcId = environmentType.VpcId;
@@ -35,6 +35,7 @@ module.exports = function GetLaunchConfiguration(query) {
       InstanceType: awsLaunchConfig.InstanceType,
       SecurityGroups: securityGroupsNames,
       Volumes,
+      UserData: new Buffer(awsLaunchConfig.UserData, 'base64').toString("ascii")
     };
 
     return ret;

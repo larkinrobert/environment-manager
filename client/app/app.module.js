@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 
@@ -26,7 +26,7 @@ app.config(function ($routeProvider) {
   $routeProvider
     .when('/', {
       templateUrl: '/app/environments/summary/env-summary.html',
-      controller: 'EnvironmentsSummaryController',
+      controller: 'EnvironmentsSummaryController as vm',
       menusection: '',
     })
     .when('/login', {
@@ -37,6 +37,23 @@ app.config(function ($routeProvider) {
     .otherwise({
       redirectTo: '/',
     });
+});
+
+app.config(function ($httpProvider) {
+  // Set default put request content type to JSON
+  $httpProvider.defaults.headers.put['Content-Type'] = 'application/json;charset=utf-8';
+
+  // Set up error pop up on HTTP errors
+  $httpProvider.interceptors.push(function ($q, $rootScope) {
+    return {
+      responseError: function(response) {
+        if (response.status >= 400 && response.status !== 404) {
+          $rootScope.$broadcast('error', response);
+        }
+        return $q.reject(response);
+      }
+    };
+  });
 });
 
 app.run(function ($rootScope, $timeout) {

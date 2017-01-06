@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let _ = require('lodash');
@@ -18,6 +18,14 @@ class Environment {
 
   getDeploymentMap() {
     return DeploymentMap.getByName(this.DeploymentMap);
+  }
+
+  getAccountName() {
+    return EnvironmentType.getByName(this.EnvironmentType).then((data) => data.AWSAccountName);
+  }
+
+  static getAccountNameForEnvironment(name) {
+    return Environment.getByName(name).then(environment => environment.getAccountName());
   }
 
   static getByName(name) {

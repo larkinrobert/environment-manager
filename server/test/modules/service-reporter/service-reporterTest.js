@@ -1,12 +1,12 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let assert = require('assert');
 
-describe('service-reporter', function() {
+describe('service-discovery', function() {
 
   let sut;
-  beforeEach(() => sut = require('modules/service-reporter'));
+  beforeEach(() => sut = require('modules/service-discovery'));
 
   it('exports the expected API', () => {
     assert.notEqual(sut.getAllServices, undefined, 'getAllServices is required');

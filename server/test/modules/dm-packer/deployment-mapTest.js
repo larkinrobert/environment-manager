@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let archiver = require('archiver');
@@ -40,7 +40,7 @@ describe('deployment-map', function() {
   describe('Get CodeDeploy entries', function() {
     context('for a deployment map and its dependencies', function () {
       let inputs = () => [
-        {id: 'DeploymentMap', version: '1.0.0', contentStream: zip({'1.txt': 'one', 'a/2.txt': 'two'})},
+        {id: 'DeploymentMap', version: '1.0.0', contentStream: zip({'healthchecks/consul/healthchecks.yml': 'some_healthcheck', '1.txt': 'one', 'a/2.txt': 'two'})},
         {id: 'Dependency1', version: '2.0.0', contentStream: zip({'3.txt': 'three', 'b/4.txt': 'four'})}
       ];
       let deploymentMap = {id: 'DeploymentMap', version: '1.0.0'};
@@ -48,6 +48,10 @@ describe('deployment-map', function() {
       it('should put each deployment map file in the "DM" directory', function() {
         let entries = dm.getCodeDeployEntries(deploymentMap, inputs(), {}, nullLogger).then(dump);
         return pathsShouldContain(['DM/1.txt', 'DM/a/2.txt'], entries);
+      });
+      it('should put the deployment map healthcheck directory in the root directory', function() {
+        let entries = dm.getCodeDeployEntries(deploymentMap, inputs(), {}, nullLogger).then(dump);
+        return pathsShouldContain(['healthchecks/consul/healthchecks.yml'], entries);
       });
       it('should put each dependency file in a directory named for the dependency', function() {
         let entries = dm.getCodeDeployEntries(deploymentMap, inputs(), {}, nullLogger).then(dump);

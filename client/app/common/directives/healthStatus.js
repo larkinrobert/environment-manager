@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 angular.module('EnvironmentManager.common')
@@ -15,6 +15,9 @@ angular.module('EnvironmentManager.common')
           Error: 'error',
           Warning: 'warning',
           NoData: 'noData',
+          Missing: 'error',
+          passing: 'healthy',
+          critical: 'error'
         };
         
         var classes = {

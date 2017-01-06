@@ -1,8 +1,8 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let resourceProvider = require('modules/resourceProvider');
-let serviceUpdater = require('modules/service-updater');
+let serviceTargets = require('modules/service-targets');
 
 module.exports = function SetTargetMaintenanceState(command) {
   let accountName = command.accountName;
@@ -10,5 +10,5 @@ module.exports = function SetTargetMaintenanceState(command) {
   let host = command.instance.PrivateIpAddress;
   let enable = command.enable;
 
-  return serviceUpdater.setInstanceMaintenanceMode(accountName, host, environment, enable);
+  return serviceTargets.setInstanceMaintenanceMode(accountName, host, environment, enable);
 };

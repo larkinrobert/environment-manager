@@ -1,12 +1,15 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let _  = require('lodash');
 let AwsError = require('modules/errors/AwsError.class');
 let AutoScalingGroupNotFoundError = require('modules/errors/AutoScalingGroupNotFoundError.class');
 let AutoScalingGroupAlreadyExistsError = require('modules/errors/AutoScalingGroupAlreadyExistsError.class');
+let logger = require('modules/logger');
 
-function AsgResource(client) {
+let cacheManager = require('modules/cacheManager');
+
+function AsgResource(client, accountName) {
   this.client = client;
 
   function standardifyError(error, autoScalingGroupName) {
@@ -74,11 +77,16 @@ function AsgResource(client) {
         ResourceId: parameters.name,
         ResourceType: 'auto-scaling-group',
         Value: parameters.tagValue,
-      },],
+      }],
     };
     return client.createOrUpdateTags(request).promise().catch(function (error) {
       throw standardifyError(error, parameters.name);
     });
+  };
+
+  this.delete = function ({ name, force }) {
+    logger.warn(`Deleting Auto Scaling Group "${name}"`);
+    return client.deleteAutoScalingGroup({ AutoScalingGroupName: name, ForceDelete: force }).promise();
   };
 
   this.put = function (parameters) {
@@ -101,6 +109,13 @@ function AsgResource(client) {
     if (parameters.launchConfigurationName) {
       request.LaunchConfigurationName = parameters.launchConfigurationName;
     }
+
+    if (!_.isNil(parameters.subnets)) {
+      request.VPCZoneIdentifier = parameters.subnets.join(',');
+    }
+
+    let asgCache = cacheManager.get('Auto Scaling Groups');
+    asgCache.del(accountName);
 
     return client.updateAutoScalingGroup(request).promise().catch(function (error) {
       throw standardifyError(error, parameters.name);

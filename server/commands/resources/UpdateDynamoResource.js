@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let co = require('co');
@@ -46,7 +46,7 @@ function* handler(command) {
 
   // Updating existing item into the storage
   let params = {
-    item: item,
+    item,
     expectedVersion: command.expectedVersion,
   };
 

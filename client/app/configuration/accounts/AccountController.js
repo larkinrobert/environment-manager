@@ -1,11 +1,11 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 angular.module('EnvironmentManager.configuration').controller('AccountController',
   function ($rootScope, $location, $routeParams, $http, cachedResources) {
     var vm = this;
     var accountName = $routeParams['accountName'];
-    var awsAccounts = cachedResources.config.awsAccounts;
+    var awsAccounts = cachedResources.config.accounts;
 
     function findAccount(accounts) {
       return awsAccounts.getByName(accountName, 'AccountName', accounts);
@@ -47,8 +47,14 @@ angular.module('EnvironmentManager.configuration').controller('AccountController
           newAccount.RoleArn = null;
         }
 
-        var operation = vm.isBeingEdited ? 'put' : 'post';
-        $http[operation]('/api/aws/account', newAccount).then(function() {
+        var promise;
+        if (vm.isBeingEdited) {
+          promise = $http.put('/api/v1/config/accounts/' + accountNumber, newAccount);
+        } else {
+          promise = $http.post('/api/v1/config/accounts', newAccount);
+        }
+
+        promise.then(function() {
           awsAccounts.flush();
           $location.path('/config/accounts');
         }).catch(function(error) {

@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let assertContract = require('modules/assertContract');
@@ -69,6 +69,10 @@ module.exports = function SetLaunchConfiguration(command) {
     if (data.AMI !== undefined) {
       let image = yield imageProvider.get(data.AMI);
       updated.ImageId = image.id
+    }
+
+    if (data.UserData !== undefined) {
+      updated.UserData = new Buffer(data.UserData).toString('base64');
     }
 
     var accountName = command.accountName;

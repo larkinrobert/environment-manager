@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let send = require('modules/helpers/send');
@@ -31,10 +31,11 @@ module.exports = [
   .do((request, response) => {
 
     send.query({
-      name: 'GetActiveSlicesByUpstream',
+      name: 'GetSlicesByUpstream',
       accountName: request.params.account,
       environmentName: request.params.environment,
       upstreamName: request.params.upstream,
+      active: true
     }, request, response);
 
   }),
@@ -45,10 +46,11 @@ module.exports = [
   .do((request, response) => {
 
     send.query({
-      name: 'GetInactiveSlicesByUpstream',
+      name: 'GetSlicesByUpstream',
       accountName: request.params.account,
       environmentName: request.params.environment,
       upstreamName: request.params.upstream,
+      active: false
     }, request, response);
 
   }),
@@ -73,10 +75,11 @@ module.exports = [
   .do((request, response) => {
 
     send.query({
-      name: 'GetActiveSlicesByService',
+      name: 'GetSlicesByService',
       accountName: request.params.account,
       environmentName: request.params.environment,
       serviceName: request.params.service,
+      active: true,
     }, request, response);
 
   }),
@@ -87,10 +90,11 @@ module.exports = [
   .do((request, response) => {
 
     send.query({
-      name: 'GetInactiveSlicesByService',
+      name: 'GetSlicesByService',
       accountName: request.params.account,
       environmentName: request.params.environment,
       serviceName: request.params.service,
+      active: false,
     }, request, response);
 
   }),

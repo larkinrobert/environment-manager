@@ -1,8 +1,8 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let co = require('co');
-let serviceUpdater = require('modules/service-updater');
+let serviceTargets = require('modules/service-targets');
 let DeploymentCommandHandlerLogger = require('commands/deployments/DeploymentCommandHandlerLogger');
 let schema = require('modules/schema/schema');
 
@@ -17,6 +17,6 @@ module.exports = function UpdateTargetState(command) {
     let value = command.value;
     let options = command.options;
 
-    return yield serviceUpdater.setTargetState(command.environment, { key, value, options });
+    return yield serviceTargets.setTargetState(command.environment, { key, value, options });
   });
 };

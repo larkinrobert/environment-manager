@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let url = require('url');
@@ -33,9 +33,9 @@ function NginxUpstreamsResource() {
 
   function asUpstreamItem(nginxUpstreamPeer) {
     let upstreamItem = {
-      server:        nginxUpstreamPeer.server,
-      state:         nginxUpstreamPeer.state,
-      health_checks: nginxUpstreamPeer.health_checks,
+      Server: nginxUpstreamPeer.server,
+      State: nginxUpstreamPeer.state,
+      HealthChecks: nginxUpstreamPeer.health_checks,
     };
 
     return upstreamItem;
@@ -71,8 +71,8 @@ function NginxUpstreamsResource() {
           if (!nginxUpstream || !nginxUpstream.peers) return invalidJsonToError(body);
 
           let upstream = {
-            name: upstreamName,
-            hosts: nginxUpstream.peers.filter(isNotNginxUpstreamPeerBackup).map(asUpstreamItem),
+            Name: upstreamName,
+            Hosts: nginxUpstream.peers.filter(isNotNginxUpstreamPeerBackup).map(asUpstreamItem),
           };
 
           upstreams.push(upstream);

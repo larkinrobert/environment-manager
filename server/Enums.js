@@ -2,6 +2,8 @@
 
 module.exports = {
 
+  DEPLOYMENT_INSTANCES_LIST_MAXIMUM_LENGTH: 300,
+
   SourcePackageType: {
     CodeDeployRevision: 'CodeDeployRevision',
     DeploymentMap: 'DeploymentMap'
@@ -17,11 +19,23 @@ module.exports = {
     Green: 'green'
   },
 
+  DIFF_STATE: {
+    Ignored: 'Ignored',
+    Missing: 'Missing',
+    Unexpected: 'Unexpected'
+  },
+
   HEALTH_STATUS: {
     Healthy: 'Healthy',
     Warning: 'Warning',
     Error: 'Error',
     NoData: 'NoData',
+    Unknown: 'Unknown',
+    Missing: 'Missing',
+  },
+
+  ASGLifecycleState: {
+    IN_SERVICE: 'InService'
   },
 
   NodeDeploymentStatus: {
@@ -34,7 +48,9 @@ module.exports = {
   DEPLOYMENT_STATUS: {
     InProgress: 'In Progress',
     Success: 'Success',
-    Failed: 'Failed'
+    Failed: 'Failed',
+    Cancelled: 'Cancelled',
+    Unknown: 'Unknown'
   },
 
   AutoScalingNotificationType: {
@@ -54,4 +70,8 @@ module.exports = {
     Abandon: 'ABANDON'
   },
 
+  ServiceAction: {
+    INSTALL: 'Install',
+    IGNORE: 'Ignore'
+  }
 };

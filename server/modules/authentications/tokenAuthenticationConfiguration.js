@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let assert = require('assert');
@@ -18,6 +18,6 @@ function loadConfiguration() {
 module.exports = {
   getTokenDuration: () => {
     let configuration = loadConfiguration();
-    configuration.tokenDuration;
+    return configuration.tokenDuration;
   }
 };

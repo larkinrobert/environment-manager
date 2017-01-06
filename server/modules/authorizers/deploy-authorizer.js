@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let _ = require('lodash');
@@ -18,9 +18,9 @@ function isSecureServerRole(configuration) {
 module.exports = {
   getRules: function (request) {
     return co(function* () {
-
-      let environmentName = request.params.environment;
-      let serviceName = request.params.service;
+      // TODO(filip): clean these when dropping old API (switching to v1)
+      let environmentName = request.params.environment || request.body.environment;
+      let serviceName = request.params.service || request.body.service;
 
       // TODO(filip): move this to middleware before authorizer and share result with route handler
       let environment = yield Environment.getByName(environmentName);
@@ -28,7 +28,7 @@ module.exports = {
       let serverRoles = _.map(yield deploymentMap.getServerRolesByServiceName(serviceName), 'ServerRoleName');
 
       let serverRoleName;
-      let inputServerRole = request.query.server_role || request.body.server_role;
+      let inputServerRole = request.query.server_role || request.body.server_role || request.body.serverRole;
       if (inputServerRole) {
         serverRoleName = inputServerRole;
         if (serverRoles.indexOf(serverRoleName) === -1) {

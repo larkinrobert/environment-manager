@@ -1,8 +1,8 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let co = require('co');
-let serviceUpdater = require('modules/service-updater');
+let serviceTargets = require('modules/service-targets');
 let schema = require('modules/schema/schema');
 
 module.exports = function GetTargetState(query) {
@@ -12,6 +12,6 @@ module.exports = function GetTargetState(query) {
     let key = query.key;
     let recurse = query.recurse;
 
-    return yield serviceUpdater.getTargetState(query.environment, { key, recurse });
+    return yield serviceTargets.getTargetState(query.environment, { key, recurse });
   });
 };

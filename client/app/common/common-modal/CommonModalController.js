@@ -1,21 +1,24 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 angular.module('EnvironmentManager.common').controller('CommonModalController',
   function ($scope, $uibModalInstance, $sce, configuration) {
 
-    $scope.Title = configuration.title;
-    $scope.Message = $sce.trustAsHtml(configuration.message);
-    $scope.Action = configuration.action || 'Ok';
-    $scope.Severity = (configuration.severity || 'Default').toLowerCase();
-    $scope.Details = (configuration.details || []).map($sce.trustAsHtml);
-    $scope.InfoMode = configuration.infomode || false;
+    var vm = this;
 
-    $scope.Ok = function () {
+    vm.title = configuration.title;
+    vm.message = $sce.trustAsHtml(configuration.message);
+    vm.action = configuration.action || 'Ok';
+    vm.severity = (configuration.severity || 'Default').toLowerCase();
+    vm.details = (configuration.details || []).map($sce.trustAsHtml);
+    vm.infoMode = configuration.infomode || false;
+    vm.cancelLabel = configuration.cancelLabel || 'Cancel';
+
+    vm.ok = function () {
       $uibModalInstance.close();
     };
 
-    $scope.Cancel = function () {
+    vm.cancel = function () {
       $uibModalInstance.dismiss('cancel');
     };
 

@@ -1,19 +1,19 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 exports.getRules = request => {
+  // TODO(filip): once we move to v1, need only swagger param
+  let body = request.params.body || request.body;
+  let cluster = request.params.range || request.params.cluster || body.OwningCluster;
 
-    var cluster = request.params.range;
-
-    return Promise.resolve([{
-        resource: request.url.replace(/\/+$/, ''),
-        access: request.method,
-        clusters: [cluster.toLowerCase()]
-    }]);
-
+  return Promise.resolve([{
+    resource: request.url.replace(/\/+$/, ''),
+    access: request.method,
+    clusters: [cluster.toLowerCase()],
+  },]);
 };
 
 exports.docs = {
-    requiresClusterPermissions: true,
-    requiresEnvironmentTypePermissions: false
+  requiresClusterPermissions: true,
+  requiresEnvironmentTypePermissions: false,
 };

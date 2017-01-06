@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let send = require('modules/helpers/send');
@@ -10,7 +10,7 @@ module.exports = route.get('/:account/environments/:environment/roles/')
   .do((request, response) => {
 
     var query = {
-      name: 'GetServiceRoles',
+      name: 'GetServerRoles',
       accountName: request.params.account,
       environmentName: request.params.environment,
     };

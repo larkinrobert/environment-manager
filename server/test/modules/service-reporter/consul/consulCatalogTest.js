@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let rewire = require('rewire');
@@ -21,7 +21,7 @@ describe('consulCatalog', function() {
       create: sinon.stub().returns(Promise.resolve(consul))
     };
     
-    sut = rewire('modules/service-reporter/consul/consulCatalog');
+    sut = rewire('modules/service-discovery/consul/consulCatalog');
     sut.__set__({ consulClient });
   });
 
@@ -30,8 +30,8 @@ describe('consulCatalog', function() {
       return sut.getAllServices({}).then(services => {
         assert(Object.keys(services).length > 20, 'expected more than 20 services');
 
-        return _.forOwn(services, service => {
-          assert(service.some(tag => tag.indexOf('deployment_id') === 0), 'expected all services to have a deployment ID');
+        return _.forOwn(services, serviceTags => {
+          assert(_.includes(Object.keys(serviceTags), 'deployment_id'), 'expected all services to have a deployment ID');
         });
       });
     });

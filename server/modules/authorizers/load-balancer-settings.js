@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 ﻿let _ = require('lodash');
@@ -16,7 +16,7 @@ function getEnvironment(name, user) {
     accountName: masterAccountName,
   };
 
-  return sender.sendQuery({ query: query, user: user });
+  return sender.sendQuery({ query, user });
 }
 
 function getModifyPermissionsForEnvironment(environmentName, user) {
@@ -32,8 +32,15 @@ function getModifyPermissionsForEnvironment(environmentName, user) {
   });
 }
 
-exports.getRules = request => {
-  return getModifyPermissionsForEnvironment(request.params.key, request.user).then(envPermissions => {
+exports.getRules = (request) => {
+  // TODO(Filip): simplify after removing old API
+  let environmentName = request.params.key || request.params.environment;
+  if (environmentName === undefined) {
+    // Environment is in the body
+    let body = request.params.body || request.body;
+    environmentName = body.EnvironmentName || body.Value.EnvironmentName
+  }
+  return getModifyPermissionsForEnvironment(environmentName, request.user).then(envPermissions => {
     return [{
       resource: request.url.replace(/\/+$/, ''),
       access: request.method,

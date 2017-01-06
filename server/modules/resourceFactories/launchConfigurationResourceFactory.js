@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let _ = require('lodash');
@@ -64,11 +64,11 @@ function LaunchConfigurationResource(client) {
     return describeLaunchConfigurations(parameters.names || []);
   };
 
-  this.delete = function (parameters) {
-    let request = { LaunchConfigurationName: parameters.name };
+  this.delete = function ({ name }) {
+    let request = { LaunchConfigurationName: name };
 
     return client.deleteLaunchConfiguration(request).promise().catch(error => {
-      throw standardifyError(error, parameters.name);
+      throw standardifyError(error, name);
     });
   };
 

@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let assert = require('assert');
@@ -10,6 +10,7 @@ describe('awsAcccountValidator', function() {
   let data;
   let awsAccounts;
   let masterAccount = undefined;
+  let childAWSclient;
 
   beforeEach(() => {
     data = {
@@ -25,8 +26,12 @@ describe('awsAcccountValidator', function() {
       getMasterAccount: sinon.stub().returns(Promise.resolve(masterAccount))
     };
 
+    childAWSclient = {
+      assumeRole: sinon.stub().returns(Promise.resolve(true))
+    };
+
     sut = rewire('commands/validators/awsAccountValidator');
-    sut.__set__({ awsAccounts });
+    sut.__set__({ awsAccounts, childAWSclient });
   });
 
   describe('validate', () => {
@@ -105,5 +110,19 @@ describe('awsAcccountValidator', function() {
         assert.throws(sut.validateAccountNumber.bind(sut, v));
       });
     });
+  });
+
+  describe('Role ARNs without the required privileges', () => {
+    beforeEach(() => {
+      data.IsMaster = false;
+      data.RoleArn = 'arn:aws:iam::354233317867:role/testRole';
+      childAWSclient.assumeRole = sinon.stub().throws(new Error());
+    });
+
+    it('should be marked as invalid', () => {
+      return sut.validate(data).catch(error => {
+        assert.equal(error.message, `Cannot assume role for ARN: ${data.RoleArn}`);
+      });
+    })
   });
 });

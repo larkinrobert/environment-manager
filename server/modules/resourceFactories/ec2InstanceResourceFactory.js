@@ -1,4 +1,4 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let _ = require('lodash');
@@ -17,7 +17,7 @@ function InstanceResource(client) {
     if(!query) return {};
 
     // {a:1, b:2} => [{Name:'a', Values:[1]}, {Name:'b', Values:[2]}]
-    let Filters = _.toPairs(query).map(q => ({ Name:q[0], Values:_.concat(q[1]) }));
+    let Filters = _.toPairs(query).map(q => ({ Name: q[0], Values: _.castArray(q[1]) }));
     return { Filters };
   }
 

@@ -1,10 +1,9 @@
-/* Copyright (c) Trainline Limited, 2016. All rights reserved. See LICENSE.txt in the project root for license information. */
+/* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
 'use strict';
 
 let co = require('co');
 let configurationCache = require('modules/configurationCache');
 let consulSecretCache = require('modules/consulSecretCache');
-let logger = require('modules/logger');
 let _ = require('lodash');
 
 function* getConsulClientOptions(parameters) {
