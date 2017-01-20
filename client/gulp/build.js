@@ -55,7 +55,7 @@ gulp.task('html', ['inject', 'partials'], function () {
     .pipe(jsFilter)
     .pipe(gulpif(createSourceMaps, $.sourcemaps.init()))
     .pipe($.ngAnnotate())
-    .pipe($.uglify({ preserveComments: $.uglifySaveLicense })).on('error', conf.errorHandler('Uglify'))
+    // .pipe($.uglify({ preserveComments: $.uglifySaveLicense })).on('error', conf.errorHandler('Uglify'))
     .pipe($.rev())
     .pipe(gulpif(createSourceMaps, $.sourcemaps.write('maps')))
     .pipe(jsFilter.restore)
