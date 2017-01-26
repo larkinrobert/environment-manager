@@ -1,90 +1,68 @@
 /* eslint-env mocha */
 /* Copyright (c) Trainline Limited, 2016-2017. All rights reserved. See LICENSE.txt in the project root for license information. */
+
 'use strict';
+
+// 'environments/pr1/roles/WorkerElectronicFulfilmentBH2B/services/TVTicketKeeperAdapterBH2/none'
 
 let should = require('should');
 let sinon = require('sinon');
 let proxyquire = require('proxyquire');
 let DeploymentContract = require('modules/deployment/DeploymentContract');
 
+let id = '00000000-0000-0000-0000-000000000001';
+let environmentTypeName = 'Prod';
+let clusterName = 'Tango';
+let accountName = 'Prod';
+let username = 'test-user';
+
 function validator(sender) {
   return proxyquire('modules/deployment/validators/uniqueServiceVersionDeploymentValidator', {
-    'modules/sender': sender,
+    'modules/sender': sender
   });
 }
 
-describe('UniqueServiceVersionDeploymentValidator: ', function () {
-  let environmentName = 'pr1';
-  let serviceName = 'MyService';
-  let serviceVersion = '1.0.0';
-  let id = '00000000-0000-0000-0000-000000000001';
-  let environmentTypeName = 'Prod';
-  let serverRole = 'Web-blue';
-  let serverRoleName = 'Web';
-  let serviceSlice = 'blue';
-  let clusterName = 'Tango';
-  let accountName = 'Prod';
-  let username = 'test-user';
-
-  let configuration = {};
-  let deployment = new DeploymentContract({
+function deploy({ environment, role, service, slice, version }) {
+  return new DeploymentContract({
     id,
-    environmentName,
+    environmentName: environment,
     environmentTypeName,
-    serverRole,
-    serverRoleName,
-    serviceName,
-    serviceVersion,
-    serviceSlice,
+    serverRole: role,
+    serverRoleName: `${role}-${slice}`,
+    serviceName: service,
+    serviceVersion: version,
+    serviceSlice: slice,
     clusterName,
     accountName,
-    username,
+    username
   });
+}
 
-  let cannedBlueGreenResponse = slice => [
-    {
-      key: `environments/${environmentName}/services/${serviceName}/${serviceVersion}/definition`,
-      value: {
-        Service: {
-          Name: `${environmentName}-${serviceName}-${serviceSlice}`,
-          ID: `${environmentName}-${serviceName}-${serviceSlice}`,
-          Address: '',
-          Port: 0,
-          Tags: [
-            `environment_type:${environmentTypeName}`,
-            `environment:${environmentName}`,
-            `owning_cluster:${clusterName}`,
-            `server_role:${serverRole}`,
-            `version:${serviceVersion}`,
-            `slice:${slice}`,
-          ],
-        },
-      },
-    },
-  ];
+let scenario = (environment, role, service, slice, version) => ({
+  environment,
+  role,
+  service,
+  slice,
+  version
+});
 
-  let cannedSingleSliceResponse = [
-    {
-      key: `environments/${environmentName}/services/${serviceName}/${serviceVersion}/definition`,
-      value: {
-        Service: {
-          Name: `${environmentName}-${serviceName}`,
-          ID: `${environmentName}-${serviceName}`,
-          Address: '',
-          Port: 0,
-          Tags: [
-            `environment_type:${environmentTypeName}`,
-            `environment:${environmentName}`,
-            `owning_cluster:${clusterName}`,
-            `server_role:${serverRole}`,
-            `version:${serviceVersion}`,
-            'slice:none',
-          ],
-        },
-      },
-    },
-  ];
+function existing({ environment, role, service, slice, version }) {
+  return [`environments/${environment}/roles/${role}/services/${service}/${slice}`, version];
+}
 
+function stub(...responses) {
+  let rsp = new Map(responses);
+  return (query) => {
+    if (query.key.endsWith('?keys')) {
+      return Promise.resolve(Array.from(rsp.keys()));
+    } else {
+      return Promise.resolve({ Version: rsp.get(query.key) });
+    }
+  };
+}
+
+describe('UniqueServiceVersionDeploymentValidator: ', function () {
+  let configuration = {};
   let senderMock;
 
   describe('validating any deployment', function () {
@@ -96,76 +74,96 @@ describe('UniqueServiceVersionDeploymentValidator: ', function () {
     });
 
     it('sends a query', () => {
+      let deployment = deploy(scenario('env1', 'role1', 'svc1', 'blue', '1.0.0'));
       return sut.validate(deployment, configuration).then(() => {
         senderMock.sendQuery.called.should.be.true();
       });
     });
 
     it('queries the running deployments', () => {
+      let deployment = deploy(scenario('env1', 'role1', 'svc1', 'blue', '1.0.0'));
       return sut.validate(deployment, configuration).then(() => {
         senderMock.sendQuery.getCall(0).args[0].should.match({
           query: {
             name: 'ScanCrossAccountDynamoResources',
             resource: 'deployments/history',
             filter: {
-              'Value.EnvironmentName': environmentName,
+              'Value.EnvironmentName': 'env1',
               'Value.SchemaVersion': 2,
-              'Value.ServiceName': serviceName,
-              'Value.Status': 'In Progress',
-            },
-          },
+              'Value.ServiceName': 'svc1',
+              'Value.Status': 'In Progress'
+            }
+          }
         });
       });
     });
 
     it('queries the deployed services', () => {
+      let deployment = deploy(scenario('env1', 'role1', 'svc1', 'blue', '1.0.0'));
       return sut.validate(deployment, configuration)
         .then(() =>
           senderMock.sendQuery.calledWithMatch({
             query: {
               name: 'GetTargetState',
-              environment: environmentName,
+              environment: 'env1',
               recurse: true,
-              key: `environments/${environmentName}/services/${serviceName}/${serviceVersion}/definition`,
-            },
+              key: 'environments/env1/roles/?keys'
+            }
           })
         ).should.finally.be.true();
     });
 
     it('fails when the service is being deployed', () => {
+      let deployment = deploy(scenario('env1', 'role1', 'svc1', 'blue', '1.0.0'));
       senderMock.sendQuery = () => Promise.resolve([undefined]);
       return sut.validate(deployment, configuration).catch((result) => {
         result.should.match({
           name: 'DeploymentValidationError',
-          message: `The '${serviceName}' service is already being deployed to '${serverRoleName}' at this time.`,
+          message: 'The \'svc1\' service is already being deployed to \'role1-blue\' at this time.'
         });
       });
     });
   });
 
   describe('validating a blue/green deployment', function () {
-
     function mockSender(createResponse) {
       function sendQuery(query) {
         if (query.query.name === 'ScanCrossAccountDynamoResources') {
           return Promise.resolve([]);
         }
-        return createResponse(query);
+        let rsp = createResponse(query.query);
+        return rsp;
       }
       return { sendQuery };
     }
 
-    it('succeeds when the version of the service is not deployed', function () {
-      let sender = mockSender(() => Promise.resolve([]));
-      let sut = validator(sender);
-      return sut.validate(deployment, configuration).should.be.fulfilled();
-    });
+    let target = scenario('env A', 'role A', 'service A', 'none', '1.0.0');
+    let differingBy = (args) => {
+      let copy = Object.assign({}, target);
+      args.forEach((x) => { copy[x] += '#'; });
+      return copy;
+    };
 
-    it('succeeds when the same version of the same service is deployed to the same slice', function () {
-      let sender = mockSender(() => Promise.resolve(cannedBlueGreenResponse(serviceSlice)));
-      let sut = validator(sender);
-      return sut.validate(deployment, configuration).should.be.fulfilled();
-    });
+    let scenarios = [
+      [[], true],
+      [['version'], true],
+      [['slice'], false],
+      [['service'], true],
+      [['role'], true],
+      [['environment'], true],
+      [['slice', 'role'], false],
+      [['slice', 'version'], true],
+      [['slice', 'service'], true],
+      [['slice', 'environment'], true]
+    ];
 
+    scenarios.forEach(([differentFields, pass]) => {
+      it(`${pass ? 'passes' : 'fails'} when an existing service differs only in ${differentFields.join(' and ')}.`, function () {
+        let sender = mockSender(stub(existing(differingBy(differentFields))));
+        let sut = validator(sender);
+        let result = sut.validate(deploy(target), configuration);
+        return pass ? result.should.be.fulfilled() : result.should.be.rejected();
+      });
+    });
   });
 });
