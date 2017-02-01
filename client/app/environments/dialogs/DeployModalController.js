@@ -92,6 +92,35 @@ angular.module('EnvironmentManager.environments').controller('DeployModalControl
         } else {
           vm.deploymentSettings.SelectedServerRoleName = undefined;
         }
+
+        $http.get('/api/v1/environments/' + vm.environment.EnvironmentName + '/servers')
+          .then(function (result) {
+            var found; 
+            result.data.Value.forEach(function (item) {
+              var stop = false;
+              item.Services.forEach(function (service) {
+                if(service.FriendlyName === newVal) {
+                  found = item.Name;
+                  stop = true;
+                  return;
+                }
+              });
+              if(stop) return;
+            });
+            return found;
+          })
+          .then(function (serverName) {
+            return $http.get('/api/v1/asgs/' 
+              + serverName 
+              + '/ready?environment=' 
+              + vm.environment.EnvironmentName);
+          })
+          .then(function (status) {
+            console.log(status);
+          })
+          .catch(function (reason) {
+            $rootScope.$emit('error', reason);
+          });
       }
     });
 
